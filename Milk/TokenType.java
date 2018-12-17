@@ -36,6 +36,6 @@ package JavaInterpreter.Milk;
   "Since a scanner has to walk each character in the literal to 
   correctly identify it, it can also convert it to the real
   runtime value that will be used by the interpreter later."
-   -- CraftingInterpretres.com 4.2.2
+   -- CraftingInterpreters.com 4.2.2
  */
 
