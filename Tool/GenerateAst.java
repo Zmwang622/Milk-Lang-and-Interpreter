@@ -45,16 +45,51 @@ public class GenerateAst
     	writer.println();
     	writer.println("abstract class " + baseName + " {");
 
+    	/***
+		 Define the Visitor Interface
+		 
+		 Visitor pattern: define all of the behavior for a new operation on
+		 a set of types in one place, without having to touch the types
+		 themselves. 
+
+		 Allows us to define new operations to all ASTs without having to
+		 add a method to each class every time
+    	*/
+    	defineVisitor(writer, baseName, types);
+
+    	//The AST Classes
     	for(String type : types)
     	{
     		String className = type.split(":")[0].trim();
     		String fields = type.split(":")[1].trim();
     		defineType(writer, baseName, className, fields);
     	}
+    	
+    	writer.println();
+    	writer.println("  abstract <R> R accept(Visitor<R> visitor);");
+    	
     	writer.println("}");
     	writer.close();
     } 
 
+    private static void defineVisitor(
+    	PrintWriter writer, String baseName, List<String> types)
+    {
+    	writer.println("  interface Visitor<R> {");
+    	
+ 		/***
+		 Iterates through all of the subclasses and declares a visit
+		 method for each one.
+ 		*/
+    	for(String type : types)
+    	{
+    		String typeName = type.split(":")[0].trim();
+    		writer.println("    R visit" + typeName + baseName + "(" +
+    			typeName + " " + baseName.toLowerCase() + ");");
+    	}
+
+    	writer.println("  }");
+    }
     private static void defineType(
     	PrintWriter writer, String baseName,
     	String className, String fieldList) 
@@ -72,7 +107,18 @@ public class GenerateAst
    			String name = field.split(" ")[1];
    			writer.println("      this." + name + " = " + name + ";");
    		}
-
    		writer.println("    }");
+
+   		writer.println();
+   		for(String field : fields)
+   		{
+   			writer.println("    final " + field + ";");
+   		}
+   		writer.println();
+   		writer.println("    <R> R accept(Visitor<R> visitor) {");
+   		writer.println("      return visitor.visit" + 
+    		className + baseName + "(this);");
+   		writer.println("    }");
+   		writer.println("  }");
    	}	
 }
