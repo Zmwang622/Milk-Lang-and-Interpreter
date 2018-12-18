@@ -65,6 +65,111 @@ class Parser
 		return expr;
 	}
 
+	/***
+	 
+	 The rule for comparison. 
+	 comparison → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
+	
+	 Follows the same pattern of equality(), but this time with 
+	 addition. The other binary operators follow the same pattern
+
+	*/
+	private Expr comparison()
+	{
+		Expr expr = addition();
+
+		while(match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL))
+		{
+			Token operator = previous();
+			Expr right = addition();
+			expr = new Expr.Binary(expr, operator, right);
+		}
+
+		return expr;
+	}
+
+	private Expr addition()
+	{
+		Expr expr = multiplication();
+
+		while(match(MINUS, PLUS))
+		{
+			Token operator = previous();
+			Expr right = multiplication();
+			expr = new Expr.Binary(expr, operator, right);
+		}
+
+		return expr;
+	}
+
+	private Expr multiplication()
+	{
+		Expr expr = unary();
+
+		while(match(SLASH, STAR))
+		{
+			Token operator = previous();
+			Expr right = unary();
+			expr = new Expr.Binary(expr, operator, right);
+		}
+
+		return expr;
+	}
+
+	/***
+	 
+	 Unary Rule:
+	 unary → ( "!" | "-" ) unary | primary ;
+
+	 Code differs from biary operators
+	
+	 If the token is a ! or -, we have a unary expression.
+	 Now recursively call it again until the expression is done.
+
+	*/
+
+	private Expr unary()
+	{
+	 	if(match(BANG,MINUS))
+	 	{
+	 		Token operator = previous();
+	 		Expr right = unary();
+	 		return new Expr.Unary(operator, right);
+		}
+	 	
+		return primary();
+	}
+
+	/***
+	 
+	 Primary Rule:
+	 primary → NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" ;
+	  
+	 Highest level of precedence.
+
+	*/
+
+	 private Expr primary()
+	 {
+	 	if(match(FALSE))
+	 		return new Expr.Literal(false);
+	 	if(match(TRUE))
+	 		return new Expr.Literal(true);
+	 	if(match(NIL))
+	 		return new Expr.Literal(null);
+
+	 	if(match(NUMBER, STRING))
+	 	{
+	 		return new Expr.Literal(previous().literal);
+	 	}
+
+	 	if(match(LEFT_PAREN))
+	 	{
+	 		Expr expr = expression();
+	 		consume(RIGHT_PAREN, "Expect ')' after expression.");
+	 		return new Expr.Grouping(expr);
+	 	}
+	 }
 	//Checks to see if the current token is any of the given types.
 	private boolean match(TokenType... types)
 	{
@@ -88,6 +193,11 @@ class Parser
 		return peek().type == type;
 	}
 	
+	/***
+	 Consumes the current token, and returns it.
+
+	 Just like the scanner's advance().
+	*/
 	private Token advance()
 	{
 		if(!isAtEnd())
@@ -96,4 +206,25 @@ class Parser
 		}
 		return previous();
 	}
+
+	//Checks if we've run out of tokens to parse
+	private boolean isAtEnd()
+	{
+		return peek().type == EOF;
+	}
+
+	//Returns the current token we have yet to consume
+	private Token peek()
+	{
+		return tokens.get(current);
+	}
+
+	//Returns most recently consumed token
+	private Token previous()
+	{
+		returns tokens.get(current-1);
+	}
+
+
+
 }
