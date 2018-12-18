@@ -23,7 +23,7 @@ public class GenerateAst
 		String outputDir = args[0];
 		/***
 		 Needs to have description of each type and its fields.	
-		 Expr is the name of the calss and the name of the file it outputs.
+		 Expr is the name of the class and the name of the file it outputs.
 		*/
 		defineAst(outputDir, "Expr", Arrays.asList(          
 	      "Binary   : Expr left, Token operator, Expr right",
