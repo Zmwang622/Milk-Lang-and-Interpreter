@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.craftinginterpreters.lox.TokenType.*;
+import static JavaInterpreter.Milk.TokenType.*;
 
 class Scanner
 {

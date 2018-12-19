@@ -22,6 +22,15 @@ import static JavaInterpreter.Milk.TokenType.*;
 */
 class Parser
 {
+	/***
+	 
+	 Sentinel class used to unwind parser. error() returns it 
+	 rather than thwoing because we want the called decide whether
+	 to unwind it or not. 
+	 
+	*/
+	private static class ParseError extends RuntimeException{}
+
 	private final List<Token> tokens;
 	//Current points at the new token to be used.
 	private int current = 0;
@@ -170,6 +179,7 @@ class Parser
 	 		return new Expr.Grouping(expr);
 	 	}
 	 }
+
 	//Checks to see if the current token is any of the given types.
 	private boolean match(TokenType... types)
 	{
@@ -183,6 +193,35 @@ class Parser
 		}
 
 		return false;
+	}
+
+	/***
+	 Error Handler will be using the "panic mode" technique
+	 As soon as the parser detects an error, it enters panic mode. It
+	 knows at least one token is incorrect in the current stack of
+	 grammar productions. Must synchronize.
+
+	 Synchronization - Get the parser's states and the sequence 
+	 of forthcoming tokens aligned such that the next token does 
+	 match the rule being parsed.
+
+	 Select a rule in the grammar that marks the synchronization 
+	 piont. Parser jumps out of it currents production and 
+	 "synchronizes" by discarding tokens until it reaches one that
+	 can appear at that point in the rule.
+	 
+	 Need to develop statements first, so I'll finish out the rest of
+	 the parser first.
+	
+	 consume() - Checks to see next token is expected. If it isn't 
+	 throw an error and freak out. 
+	*/
+	private Token consume(TokenType type, String message)
+	{	
+		if(check(type))
+			return advance();
+
+		throw error(peek(), message);
 	}
 
 	//Only looks at the current type and see if it matches. 
@@ -225,6 +264,11 @@ class Parser
 		returns tokens.get(current-1);
 	}
 
-
+	//Error method, ParseError is a static class in Parser.java
+	private ParseError error(Token token, String message)
+	{
+		Milk.error(token, message);
+		return new ParseError();
+	}
 
 }
