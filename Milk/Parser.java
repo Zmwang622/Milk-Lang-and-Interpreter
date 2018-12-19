@@ -27,7 +27,7 @@ class Parser
 	 Sentinel class used to unwind parser. error() returns it 
 	 rather than thwoing because we want the called decide whether
 	 to unwind it or not. 
-	 
+
 	*/
 	private static class ParseError extends RuntimeException{}
 
@@ -271,4 +271,94 @@ class Parser
 		return new ParseError();
 	}
 
+	/***
+	 
+	 Method that synchronizes. 
+
+	 Because we use recursive descent, the praser's stae is not 
+	 stored explicitly in fields. Instead we use Java's own callstack
+	 to track what the parser is doing. 
+
+	 Instead, we use Java exceptions. When we want to synchronize, 
+	 we THROW  the ParseObject. We are synchronizing on statement
+	 boundaries, so we'll catch there. 
+
+	 Once the expection is caught, we synchronize the tokens. 
+
+	 Lets discard tokens until we're right at the beginning of the 
+	 next statement. To determine that, assume the statements after the
+	 next semicolon is the beginning of the next statement.
+
+	Call this after we catch a ParseError on the statement level, and
+	we'll hopefully be back on track.
+
+	*/
+	private void synchronize()
+	{
+		advance();
+
+		while(!isAtEnd())
+		{	
+			//If last type was a ; we can assume we're at a new stmnt
+			if(previous().type == SEMICOLON)
+				return;
+
+			switch(peek().type)
+			{
+				//New statements can also start with these.
+				//Especially: for, if, return, and var
+				case CLASS:
+				case MING:
+				case VAR:
+				case FOR:
+				case IF:
+				case WHILE:
+				case PRINT:
+				case RETURN:
+					return;
+			}
+			
+			//Keep ignoring tokens until it might have found a new statement
+			advance();
+		}
+	}
 }
+
+/***
+
+ Notes on Error Handling:
+
+ Parse has two jobs:
+ 1. Take a valid sequence of tokens, and produce a corresponding 
+ syntax tree.
+ 2. Given an invalid sequence of tokens, detect any errors and yell at
+ the users for messing up.
+
+ 2nd is much much much more important that the first one.
+ -When the user doesn't realize they messed up, the parser has to
+ lead them back on track
+
+ Requirements and Recommendations for Parser:
+ Req:
+ 1. Detect and Report the Error. 
+  If the parser doesn't react to the error and simply go on to the
+  interpreter...hell will ensue.
+ 2. Can't Crash or Hang
+  Parser can't get stuck in an infinite loop at any point because 
+  though code may be invalid, it's still a valid input to the parser.
+  Users use the parser to learn what syntax is allowed.
+ Rec:
+  1. Be Fast
+   "Faster than fast, quicker than quick, I am lightning"
+    	-- My parser, probably
+  2. Report as many distinct errors as there are
+   This way the user can fix all of their issues in one run, rather
+   than repeated running for each error.
+  3. Minimize cascaded errors.
+   Don't you hate it when you forget one bracket and you suddenly 
+   have 35 errors? Let's try to minimize that from happening.
+
+ Error Recovery- how the parser responds to an error and keeps going
+ back to look for later errors. Heavily researched in the 60s when 
+ code was still submitted via stacks of punch cards.
+*/
