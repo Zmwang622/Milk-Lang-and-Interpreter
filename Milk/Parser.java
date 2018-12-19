@@ -40,6 +40,18 @@ class Parser
 		this.tokens = tokens;
 	}
 
+	// The method that kicks it off. WOOOOOOOOOOOOOOOH!!!! dun did it
+	// Will revisit when statements are added.
+	Expr parse()
+	{
+		try{
+
+			return expression();
+		} catch (ParseError error){
+			return null;
+		}
+	}
+
 	//First grammar rule, expression, expands to the equality rule.
 	private Expr expression()
 	{
@@ -178,6 +190,9 @@ class Parser
 	 		consume(RIGHT_PAREN, "Expect ')' after expression.");
 	 		return new Expr.Grouping(expr);
 	 	}
+
+	 	//If there is a token that doesn't match a single case
+	 	throw error(peek(), "Expect expression.");
 	 }
 
 	//Checks to see if the current token is any of the given types.
@@ -227,8 +242,8 @@ class Parser
 	//Only looks at the current type and see if it matches. 
 	private boolean check(TokenType type)
 	{
-		if(istAtEnd())
-			return false
+		if(isAtEnd())
+			return false;
 		return peek().type == type;
 	}
 	
@@ -261,7 +276,7 @@ class Parser
 	//Returns most recently consumed token
 	private Token previous()
 	{
-		returns tokens.get(current-1);
+		return tokens.get(current-1);
 	}
 
 	//Error method, ParseError is a static class in Parser.java

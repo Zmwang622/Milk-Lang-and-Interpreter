@@ -1,0 +1,3 @@
+//Document for testing my language
+
+1+1*6/2 -5 == -2;

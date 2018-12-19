@@ -224,7 +224,7 @@ class Scanner
 		//Unterminated string
 		if(isAtEnd())
 		{
-			Lox.error(line,"Unterminated string.");
+			Milk.error(line,"Unterminated string.");
 			return;
 		}
 
@@ -234,7 +234,7 @@ class Scanner
 		//Cut off the "" in the string statemen
 		//When creating the token, we also produce the actual string value
 		//that will be used later.
-		String value = source.sustring(start + 1, current-1);
+		String value = source.substring(start + 1, current-1);
 		addToken(STRING, value);
 	}
 	/***
@@ -298,7 +298,7 @@ class Scanner
 	//Helper method.
 	private void addToken(TokenType type)
 	{
-		add(type,null);
+		addToken(type,null);
 	}
 
 	//Adds the token to the list

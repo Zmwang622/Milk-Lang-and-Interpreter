@@ -88,11 +88,15 @@ public class Milk
 	{
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.scanTokens();
+		Parser parser = new Parser(tokens);
+		Expr expression = parser.parse();
 
-		for(Token token : tokens)
-		{
-			System.out.println(token);
-		}
+		//Stop if there's a syntax error.
+
+		if(hadError)
+			return;
+		
+		System.out.println(new AstPrinter().print(expression));
 	}
 
 	/*** 
@@ -120,7 +124,7 @@ public class Milk
 
 	/***
 	 Reports an error at a given token. shows token's location and 
-	 the token itself.
+	 the token itself. 
 	*/
 	static void error(Token token, String message)
 	{
