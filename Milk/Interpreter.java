@@ -20,7 +20,7 @@ class Interpreter implements Expr.Visitor<Object>
 
 	/***
 
-	 Unary expression: -, !, arithmetic operations.
+	 Unary expression: -, !
 	 
 	 First evaluate the operand expression, then apply the unary 
 	 operator itself to the result of that. 
@@ -36,7 +36,7 @@ class Interpreter implements Expr.Visitor<Object>
 
 		switch(expr.operator.type)
 		{
-
+			
 			case BANG:
 				return !isTruthy(right);
 			//If the operator is a - we know it preceds a number
@@ -47,6 +47,57 @@ class Interpreter implements Expr.Visitor<Object>
 		return null;
 	}
 
+	/***
+	 
+	 Binary Expressions: + - / * % etc.
+
+	*/
+
+	 //Get the left and right, and then evaluate the middle operator.
+	 @Override 
+	 public Object visitBinaryExpr(Expr.Binary expr)
+	 {
+	 	Object left = evaluate(expr.left);
+	 	Object right = evaluate(expr.right);
+
+	 	switch(expr.operator.type)
+	 	{
+	 		case GREATER:
+	 			return (double) left > (double) right;
+	 		case GREATER_EQUAL:
+	 			return (double) left >= (double) right;
+	 		case LESS:
+	 			return (double) left < (double) right;
+	 		case LESS_EQUAL:
+	 			return (double) left <= (double) right;
+ 	 		case MINUS:
+	 			return (double) left - (double) right;
+	 		// + could be used to concatenate strings, so must account
+	 		// for that
+	 		case PLUS:
+	 			if(left instanceof Double && right instanceof Double)
+	 			{
+	 				return (double) left + (double) right;
+	 			}
+
+	 			if(left instanceof String && right instanceof String)
+	 			{
+	 				return (String) left + (String) right;
+	 			}
+	 		case SLASH:
+	 			return (double) left / (double) right;
+	 		case STAR:
+	 			return (double) left * (double) right;
+	 		case BANG_EQUAL:
+	 			return !isEqual(left,right);
+	 		case EQUAL_EQUAL:
+	 			return isEqual(left, right);
+	 	}
+
+	 	// Unreachable but necessary
+	 	return null;
+	 }
+	
 	/***
   	 
 	 Grouping: Parentheses
@@ -67,5 +118,38 @@ class Interpreter implements Expr.Visitor<Object>
 		return expr.accept(this);
 	}
 
+		/***
 
+	What is truth (in Milk)?
+	Must determine what logic operations mean in different 
+	situations 
+
+	Truthy: A set of all "true" types
+	Falsey: A set of all "false" types
+
+	Extremely arbitrary.
+
+	Milk's rules: false and nil are falsey, everything else
+    is truthy.
+	
+	*/
+
+	private boolean isTruthy(Object object)
+	{
+		if(object == null)
+			return false;
+		if(object instanceof Boolean)
+			return (boolean ) object;
+		return true;
+	}
+
+	private boolean isEqual(Object a, Object b)
+	{
+		if(a==null && b == null)
+			return true;
+		if(a== null)
+			return false;
+
+		return a.equals(b);
+	}
 }
