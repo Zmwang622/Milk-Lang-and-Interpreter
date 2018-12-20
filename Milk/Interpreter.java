@@ -41,12 +41,19 @@ class Interpreter implements Expr.Visitor<Object>
 				return !isTruthy(right);
 			//If the operator is a - we know it preceds a number
 			case MINUS:
+				checkNumberOperand(espr.operator, right);
 				return -(double)right;
 		}
 
 		return null;
 	}
 
+	private void checkNumberOperand(Token operator, Object operand)
+	{
+		if(operand instanceof Double)
+			return;
+		throw new RuntimeError(operator, "Operand must be a number.");
+	}
 	/***
 	 
 	 Binary Expressions: + - / * % etc.
