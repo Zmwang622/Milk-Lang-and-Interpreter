@@ -1,5 +1,4 @@
 //Document for testing my language
 
-"Hello World"
 
-1+1*6/2 -5 == -2;
+1+1*6/2-5;

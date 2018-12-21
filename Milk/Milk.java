@@ -14,7 +14,10 @@ import java.util.List;
 public class Milk
 {   
 	// hadError ensures that we don't try excuting code when there is a known error
+	private static final Interpreter interpreter = new Interpreter();
+
 	static boolean hadError = false;
+	static boolean hadRuntimeError = false;
 	/*** 
 	* Baby steps for now.
 	* Main method
@@ -49,6 +52,11 @@ public class Milk
 		if(hadError)
 		{
 			System.exit(65);
+		}
+
+		if(hadRuntimeError)
+		{
+			System.exit(70);
 		}
 	}
 	/***
@@ -87,16 +95,16 @@ public class Milk
 	private static void run(String source)
 	{
 		Scanner scanner = new Scanner(source);
-		List<Token> tokens = scanner.scanTokens();
+		List<Toekn> tokens = scanner.scanTokens();
 		Parser parser = new Parser(tokens);
-		Expr expression = parser.parse();
+		List<Stmt> statemnets = parser.parse();
 
 		//Stop if there's a syntax error.
 
 		if(hadError)
 			return;
 		
-		System.out.println(new AstPrinter().print(expression));
+		interpreter.interpret(statements);
 	}
 
 	/*** 
@@ -108,7 +116,14 @@ public class Milk
 
 	static void error(int line, String message)
 	{
-		report(line,"",message);
+		report(line," ",message);
+	}
+
+	static void runtimeError(RuntimeError error)
+	{
+		System.err.println(error.getMessage() + 
+			"\n[line " + error.token.line + "]");
+		hadRuntimeError = true;
 	}
 	/*** 
 	 Gives user basic information on the error. 

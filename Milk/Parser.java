@@ -1,5 +1,6 @@
 package JavaInterpreter.Milk;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static JavaInterpreter.Milk.TokenType.*;
@@ -40,16 +41,49 @@ class Parser
 		this.tokens = tokens;
 	}
 
-	// The method that kicks it off. WOOOOOOOOOOOOOOOH!!!! dun did it
-	// Will revisit when statements are added.
-	Expr parse()
-	{
-		try{
+	/***
 
-			return expression();
-		} catch (ParseError error){
-			return null;
+	 Now that we have added statements, we can begin work on the method.  
+	 Because statements and expressions are so different, we will 
+	 relegate them each their own private method. 
+
+	 Statement syntax:
+	 statement → exprStmt | printStmt ;
+	
+	*/
+	List<Stmt> parse()
+	{
+		List<Stmt> statements = new ArrayList<>();
+		while(!isAtEnd())
+		{
+			statements.add(statement());
 		}
+
+		return statements;
+	}
+
+	//Parsing statements: either print or use expression
+
+	private Stmt statement()
+	{
+		if(match(PRINT))
+			return printStatement();
+
+		return expressionStatement();
+	}
+
+	private Stmt printStatement()
+	{
+		Expr value = expression();
+		consume(SEMICOLON, "Expect ';' after value.");
+		return new Stmt.Print(value);
+	}
+
+	private Stmt expressionStmt()
+	{	
+		Expr expr = expression();
+		consume(SEMICOLON, "Expect ';' after expression.");
+		return new Stmt.Expression(expr);
 	}
 
 	//First grammar rule, expression, expands to the equality rule.
