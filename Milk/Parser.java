@@ -118,7 +118,7 @@ class Parser
 			if(match(VAR))
 				return varDeclaration();
 			return statement();
-		} catch (ParseError) {
+		} catch (ParseError e) {
 			synchronize();
 			return null;
 		}

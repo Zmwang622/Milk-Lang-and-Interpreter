@@ -1,6 +1,6 @@
 //Document for testing my language
 
 
-print "hey andre";
-print true;
-print 2 + 1;
+var a = 200;
+var b = -2;
+print a+b;

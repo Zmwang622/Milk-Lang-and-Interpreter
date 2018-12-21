@@ -22,6 +22,13 @@ class AstPrinter implements Expr.Visitor<String>
 	  return parenthesize("group", expr.expression);                   
 	}                                                                  
 
+	@Override
+	public String visitVariableExpr(Expr.Variable s)
+	{
+		System.out.println("ok buddy");
+
+		return "nephew, we need this class no more";
+	}
 	@Override                                                          
 	public String visitLiteralExpr(Expr.Literal expr) 
 	{                
