@@ -1,4 +1,6 @@
 //Document for testing my language
 
 
-1+1*6/2-5;
+print "hey andre";
+print true;
+print 2 + 1;

@@ -95,9 +95,9 @@ public class Milk
 	private static void run(String source)
 	{
 		Scanner scanner = new Scanner(source);
-		List<Toekn> tokens = scanner.scanTokens();
+		List<Token> tokens = scanner.scanTokens();
 		Parser parser = new Parser(tokens);
-		List<Stmt> statemnets = parser.parse();
+		List<Stmt> statements = parser.parse();
 
 		//Stop if there's a syntax error.
 

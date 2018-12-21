@@ -46,7 +46,11 @@ class Parser
 	 Now that we have added statements, we can begin work on the method.  
 	 Because statements and expressions are so different, we will 
 	 relegate them each their own private method. 
-
+	 
+	 Start from the highest part of the syntax ladder.
+	 
+	 program → declaration* EOF ;
+	 declaration → varDecl | statement ;
 	 Statement syntax:
 	 statement → exprStmt | printStmt ;
 	
@@ -56,7 +60,7 @@ class Parser
 		List<Stmt> statements = new ArrayList<>();
 		while(!isAtEnd())
 		{
-			statements.add(statement());
+			statements.add(declaration());
 		}
 
 		return statements;
@@ -79,7 +83,23 @@ class Parser
 		return new Stmt.Print(value);
 	}
 
-	private Stmt expressionStmt()
+	private Stmt varDeclaration()
+	{
+		Token name = consume(IDENTIFIER, "Expect variable name.");
+
+		Expr initializer = null;
+
+		//if there is an '=' it knows there is an initializer expression.
+		if(match(EQUAL))
+		{
+			initializer = expression();
+		}
+
+		consume(SEMICOLON, "Expect ';' after variable declaration.");
+		return new Stmt.Var(name, initializer);
+	}
+
+	private Stmt expressionStatement()
 	{	
 		Expr expr = expression();
 		consume(SEMICOLON, "Expect ';' after expression.");
@@ -92,6 +112,17 @@ class Parser
 		return equality();
 	}
 
+	private Stmt declaration()
+	{
+		try{
+			if(match(VAR))
+				return varDeclaration();
+			return statement();
+		} catch (ParseError) {
+			synchronize();
+			return null;
+		}
+	}
 	/***
 	
 	The rule for equality:
@@ -218,6 +249,10 @@ class Parser
 	 		return new Expr.Literal(previous().literal);
 	 	}
 
+	 	if(match(IDENTIFIER))
+	 	{
+	 		return new Expr.Variable(previous());
+	 	}
 	 	if(match(LEFT_PAREN))
 	 	{
 	 		Expr expr = expression();

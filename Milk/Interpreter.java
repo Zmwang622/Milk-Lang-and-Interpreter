@@ -1,9 +1,12 @@
 package JavaInterpreter.Milk;
 
 import java.util.List;
+
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 {
-	void interpret(Expr expression)
+	private Environment environment = new Environment();
+
+	void interpret(List<Stmt> statements)
 	{
 		try{
 			for(Stmt statement : statements)
@@ -190,6 +193,17 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		Object value = evaluate(stmt.expression);
 		System.out.println(stringify(value));
 		return null;
+	}
+
+	@Override
+	public Void visitVarStmt(Stmt.Var stmt)
+	{
+		Object value = null;
+		if(stmt.intializer != null)
+		{
+			value = evaluate(stmt.initializer);
+		}
+
 	}
 	/***
 
