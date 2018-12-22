@@ -97,7 +97,7 @@ class Parser
 		}
 		else if(match(VAR))
 		{
-			intializer = varDeclaration();
+			initializer = varDeclaration();
 		}
 		else
 		{
@@ -107,7 +107,7 @@ class Parser
 		Expr condition = null;
 		if(!check(SEMICOLON))
 		{
-			condition = expressionm();
+			condition = expression();
 		}
 		consume(SEMICOLON, "Expect ';' after loop condition.");
 
@@ -123,7 +123,7 @@ class Parser
 
 		if(increment != null)
 		{
-			body = new Stmt.Blcok(Arrays.asList(
+			body = new Stmt.Block(Arrays.asList(
 				body, new Stmt.Expression(increment)));
 		}
 
@@ -143,7 +143,7 @@ class Parser
 		Expr condition = expression();
 		consume(RIGHT_PAREN, "Expect ')' after if condition,");
 
-		Stmt thenBrench = statement();
+		Stmt thenBranch = statement();
 		Stmt elseBranch = null;
 		if(match(ELSE))
 		{
@@ -192,7 +192,7 @@ class Parser
 		return new Stmt.Expression(expr);
 	}
 
-	private List<Stm> block()
+	private List<Stmt> block()
 	{
 		List<Stmt> statements = new ArrayList<>();
 
@@ -232,7 +232,7 @@ class Parser
 
 		while(match(OR))
 		{
-			Token operator = previous;
+			Token operator = previous();
 			Expr right = and();
 			expr = new Expr.Logical(expr, operator, right);
 		}
@@ -371,9 +371,55 @@ class Parser
 	 		return new Expr.Unary(operator, right);
 		}
 	 	
-		return primary();
+		return call();
 	}
 
+	private Expr finishCall(Expr callee)
+	{
+		List<Expr> arguments = new ArrayList<>();
+		if(!check(RIGHT_PAREN))
+		{
+			do
+			{
+				if(arguments.size() >= 22)
+				{
+					error(peek(), "Cannot have more than 22 arguments.");
+				}
+				arguments.add(expression());
+			} while(match(COMMA));
+		}
+		
+		Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
+	
+		return new Expr.Call(callee, paren, arguments);
+	}
+
+	/***
+
+	 Call rule:
+	 unary → ( "!" | "-" ) unary | call ;
+     call  → primary ( "(" arguments? ")" )* ;	 
+
+	*/
+    private Expr call()
+    {
+    	Expr expr = primary();
+
+     	while(true)
+     	{
+     		if(match(LEFT_PAREN))
+     		{
+     			expr = finishCall(expr);
+     		}
+
+     		else
+     		{
+     			break;
+     		}
+    	}
+
+    	return expr;
+    }
 	/***
 	 
 	 Primary Rule:

@@ -1,10 +1,38 @@
 package JavaInterpreter.Milk;
 
+import java.util.ArrayList;
 import java.util.List;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 {
-	private Environment environment = new Environment();
+	final Environment globals = new Environment();
+	private Environment environment = globals;
+
+	Interpreter()
+	{
+		globals.define("clock", new MilkCallable(){
+			@Override
+			public int arity()
+			{
+				return 0;
+			}
+
+			@Override
+			public Object call(Interpreter interpreter,
+							   List<Object> arguments)
+			{
+				return (double) System.currentTimeMillis()/1000.0;
+			}
+
+			@Override
+			public String toString()
+			{
+				return "<native fn>";
+			}
+		});
+	}
+
+
 
 	void interpret(List<Stmt> statements)
 	{
@@ -33,7 +61,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		return expr.value;
 	}	
 
-	@Override Object visitLogicalExpr(Expr.Logical expr)
+	@Override 
+	public Object visitLogicalExpr(Expr.Logical expr)
 	{
 		Object left = evaluate(expr.left);
 
@@ -177,6 +206,34 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	 	// Unreachable but necessary
 	 	return null;
 	 }
+
+	@Override
+	public Object visitCallExpr(Expr.Call expr)
+	{
+		Object callee = evaluate(expr.callee);
+
+		List<Object> arguments = new ArrayList<>();
+		for(Expr argument : expr.arguments)
+		{
+			arguments.add(evaluate(argument));
+		}
+
+		if(!(callee instanceof MilkCallable))
+		{
+			throw new RuntimeError(expr.paren,
+				"Can only call functions and classes.");
+		}
+
+		MilkCallable function = (MilkCallable) callee;
+		if(arguments.size() != function.arity())
+		{
+			throw new RuntimeError(expr.paren, "Expected " +
+				function.arity() + " arguments but got " +
+				arguments.size() + ".");
+		}
+
+		return function.call(this, arguments);
+	}
 	
 	/***
   	 
@@ -221,7 +278,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		}
 	}
 	@Override
-	public Void visitBlockStmT(Stmt.Block stmt)
+	public Void visitBlockStmt(Stmt.Block stmt)
 	{
 		executeBlock(stmt.statements, new Environment(environment));
 		return null;
@@ -318,7 +375,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			return true;
 		if(a== null)
 			return false;
-
 		return a.equals(b);
 	}
 
