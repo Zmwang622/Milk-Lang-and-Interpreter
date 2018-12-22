@@ -26,23 +26,25 @@ public class GenerateAst
 		 Expr is the name of the class and the name of the file it outputs.
 		*/
 		defineAst(outputDir, "Expr", Arrays.asList(          
-	      "Binary   : Expr left, Token operator, Expr right",
+	      "Assign   : Token name, Expr value",
+        "Binary   : Expr left, Token operator, Expr right",
 	      "Grouping : Expr expression",                      
 	      "Literal  : Object value",                         
-	      "Unary    : Token operator, Expr right",
+	      "Logical  : Expr left, Token operator, Expr right",
+        "Unary    : Token operator, Expr right",
         "Variable : Token name"            
     	));
 
     defineAst(outputDir, "Stmt", Arrays.asList(
+        "Block      : List<Stmt> statements",
         "Expression : Expr expression",
         "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
         "Print      : Expr expression",
         "Var        : Token name, Expr initializer"
       ));
 	}
-    private static void defineAst(
-    String outputDir, String baseName, List<String> types)
-    	throws IOException
+  private static void defineAst(String outputDir, 
+    String baseName, List<String> types) throws IOException
     {
     	String path = outputDir + "/" + baseName + ".java";
     	PrintWriter writer = new PrintWriter(path, "UTF-8");
