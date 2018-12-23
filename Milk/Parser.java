@@ -67,7 +67,7 @@ class Parser
 		return statements;
 	}
 
-	//Parsing statements: either print or use expression
+	// Statement parser: for all my statement needs
 
 	private Stmt statement()
 	{
@@ -77,6 +77,8 @@ class Parser
 			return ifStatement();
 		if(match(PRINT))
 			return printStatement();
+		if(match(RETURN))
+			return returnStatement();
 		if(match(WHILE))
 			return whileStatement();
 		if(match(LEFT_BRACE))
@@ -137,6 +139,7 @@ class Parser
 		}
 		return body;
 	}
+	
 	private Stmt ifStatement()
 	{
 		consume(LEFT_PAREN, "Expect '(' after 'if'.");
@@ -152,11 +155,26 @@ class Parser
 
 		return new Stmt.If(condition, thenBranch, elseBranch);
 	}
+
 	private Stmt printStatement()
 	{
 		Expr value = expression();
 		consume(SEMICOLON, "Expect ';' after value.");
 		return new Stmt.Print(value);
+	}
+
+	private Stmt returnStatement()
+	{
+		Token keyword = previous();
+		Expr value = null;
+
+		if(!check(SEMICOLON))
+		{
+			value = expression();
+		}
+
+		consume(SEMICOLON, "Expect ';' after return value.");
+		return new Stmt.Return(keyword, value);
 	}
 
 	private Stmt varDeclaration()
@@ -190,6 +208,31 @@ class Parser
 		Expr expr = expression();
 		consume(SEMICOLON, "Expect ';' after expression.");
 		return new Stmt.Expression(expr);
+	}
+
+	private Stmt.Function function(String kind)
+	{
+		Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+	
+		consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+		List<Token> parameters = new ArrayList<>();
+		if(!check(RIGHT_PAREN))
+		{
+			do
+			{
+				if(parameters.size() >= 22)
+				{
+					error(peek(), "Cannot have more than 8 parameters");
+				}
+			
+				parameters.add(consume(IDENTIFIER, "Expect parameter name,"));	
+			} while(match(COMMA));
+		}
+		consume(RIGHT_PAREN,"Expect ')' after parameters.");
+
+		consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+		List<Stmt> body = block();
+		return new Stmt.Function(name, parameters, body);
 	}
 
 	private List<Stmt> block()
@@ -263,6 +306,8 @@ class Parser
 	private Stmt declaration()
 	{
 		try{
+			if(match(MING))
+				return function("function");
 			if(match(VAR))
 				return varDeclaration();
 			return statement();
