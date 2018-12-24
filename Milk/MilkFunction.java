@@ -28,7 +28,7 @@ class MilkFunction implements MilkCallable
 		} catch(Return returnValue) {
 			return returnValue.value;
 		}
-
+		
 		return null;
 	}
 
