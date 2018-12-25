@@ -305,6 +305,15 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	}
 
 	@Override
+	public Void visitClassStm(Stmt.Class stmt)
+	{
+		environment.define(stmt.name.lexeme, null);
+		MilkClass klass = new MilkClass(stmt.name.lexeme);
+		environment.assign(Stmt.name, klass);
+		return null;
+	}
+	
+	@Override
 	public Void visitExpressionStmt(Stmt.Expression stmt)
 	{
 		evaluate(stmt.expression);

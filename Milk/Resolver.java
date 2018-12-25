@@ -107,6 +107,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 	}
 
 	@Override
+	public Void visitClassStmt(Stmt.Class stmt)
+	{
+		declare(stmt.name);
+
+		define(stmt.name);
+		return null;	
+	}
+	@Override
 	public Void visitExpressionStmt(Stmt.Expression stmt)
 	{
 		resolve(stmt.expression);
@@ -146,7 +154,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 		{
 			Milk.error(stmt.keyword, "Cannot return from top-level code.");
 		}
-		
+
 		if(stmt.value != null)
 		{
 			resolve(stmt.value);
