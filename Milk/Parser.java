@@ -264,6 +264,11 @@ class Parser
 				return new Expr.Assign(name,value);
 			}
 
+			else if(expr instanceof Expr.Get)
+			{
+				Expr.Get get = (Expr.Get) expr;
+				return new Expr.Set(get.object, get.name, value);
+			}
 			error(equals, "Invalid assignment target.");
 		}
 		return expr;
@@ -318,7 +323,7 @@ class Parser
 			return null;
 		}
 	}
-	private Stmt classDeclaration
+	private Stmt classDeclaration()
 	{
 		Token name = consume(IDENTIFIER, "Expect class name.");
 		consume(LEFT_BRACE, "Expect '{' before class body");
@@ -472,6 +477,13 @@ class Parser
      		if(match(LEFT_PAREN))
      		{
      			expr = finishCall(expr);
+     		}
+
+     		else if (match(DOT))
+     		{
+     			Token name = consume(IDENTIFIER, 
+     				"Expect property name after '.' .");
+     			expr = new Expr.Get(expr, name);
      		}
 
      		else

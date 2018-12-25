@@ -27,7 +27,7 @@ class Environment{
 
 	Environment ancestor(int distance)
 	{
-		Enivronment environment = this;
+		Environment environment = this;
 		for(int i = 0; i<distance; i++)
 		{
 			environment = environment.enclosing;

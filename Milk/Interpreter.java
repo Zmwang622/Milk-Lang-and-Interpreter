@@ -80,6 +80,21 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 
 		return evaluate(expr.right);
 	}
+
+	@Override
+	public Object visitSetExpr(Expr.Set expr)
+	{
+		Object object = evaluate(expr.object);
+
+		if(!(object instanceof MilkInstance))
+		{
+			throw new RuntimeError(expr.name, "Only instances have fields.");
+		}
+
+		Object value = evaluate(expr.value);
+		((MilkInstance) object).set(expr.name, value);
+		return value;
+	}
 	/***
 
 	 Unary expression: -, !
@@ -250,6 +265,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		return function.call(this, arguments);
 	}
 	
+	@Override
+	public Object visitGetExpr(Expr.Get expr)
+	{
+		Object object = evaluate(expr.object);
+		if(object instanceof MilkInstance)
+		{
+			return ((MilkInstance) object).get(expr.name);
+		}
+
+		throw new RuntimeError(expr.name,
+			"Only instances have properties.");
+	}
 	/***
   	 
 	 Grouping: Parentheses
@@ -305,14 +332,22 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	}
 
 	@Override
-	public Void visitClassStm(Stmt.Class stmt)
+	public Void visitClassStmt(Stmt.Class stmt)
 	{
 		environment.define(stmt.name.lexeme, null);
-		MilkClass klass = new MilkClass(stmt.name.lexeme);
-		environment.assign(Stmt.name, klass);
+
+		Map<String, MilkFunction> methods = new HashMap<>();
+		for(Stmt.Function method : stmt.methods)
+		{
+			MilkFunction function = new MilkFunction(method,environment);
+			methods.put(method.name.lexeme, function);
+		}
+
+		MilkClass klass = new MilkClass(stmt.name.lexeme, methods);
+		environment.assign(stmt.name, klass);
 		return null;
 	}
-	
+
 	@Override
 	public Void visitExpressionStmt(Stmt.Expression stmt)
 	{

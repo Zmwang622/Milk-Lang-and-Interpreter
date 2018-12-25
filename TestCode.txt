@@ -1,14 +1,9 @@
-ming	 makePoint(x, y) {
-  ming closure(method) {
-    if (method == "x") return x;
-    if (method == "y") return y;
-    print "unknown method " + method;
+class Bacon
+{
+  eat()
+  {
+     print "Chew Chew Chew!";
   }
-
-  return closure;
 }
 
-var point = makePoint(2, 3);
-print point("x"); // "2".
-print point("y"); // "3".
-print point(1);
+Bacon().eat();

@@ -18,7 +18,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 
 	private enum FunctionType{
 		NONE,
-		FUNCTION
+		FUNCTION,
+		METHOD
 	}
 
 	void resolve(List<Stmt> statements)
@@ -112,8 +113,16 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 		declare(stmt.name);
 
 		define(stmt.name);
+
+		for(Stmt.Function method : stmt.methods)
+		{
+			FunctionType declaration = FunctionType.METHOD;
+			resolveFunction(method, declaration);
+		}
+
 		return null;	
 	}
+
 	@Override
 	public Void visitExpressionStmt(Stmt.Expression stmt)
 	{
@@ -124,7 +133,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 	@Override
 	public Void visitFunctionStmt(Stmt.Function stmt)
 	{
-		declar(stmt.name);
+		declare(stmt.name);
 		define(stmt.name);
 
 		resolveFunction(stmt, FunctionType.FUNCTION);
@@ -132,7 +141,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 	}
 
 	@Override
-	public Void vistiIfStmt(Stmt.If stmt)
+	public Void visitIfStmt(Stmt.If stmt)
 	{
 		resolve(stmt.condition);
 		resolve(stmt.thenBranch);
@@ -168,7 +177,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 		declare(stmt.name);
 		if(stmt.initializer != null)
 		{
-			resolve(stm.initializer);
+			resolve(stmt.initializer);
 		}
 		define(stmt.name);
 		return null;
@@ -211,6 +220,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 	}
 
 	@Override
+	public Void visitGetExpr(Expr.Get expr)
+	{
+		resolve(expr.object);
+		return null;
+	}
+	@Override
 	public Void visitGroupingExpr(Expr.Grouping expr)
 	{
 		resolve(expr.expression);
@@ -232,6 +247,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 	}
 
 	@Override
+	public Void visitSetExpr(Expr.Set expr)
+	{
+		resolve(expr.value);
+		resolve(expr.object);
+		return null;
+	}
+
+	@Override
 	public Void visitUnaryExpr(Expr.Unary expr)
 	{
 		resolve(expr.right);
@@ -247,7 +270,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 				"Cannot read local variable in its own initializer.");
 		}
 
-		reolveLocal(expr,expr.name);
+		resolveLocal(expr,expr.name);
 		return null;
 	}
 }
