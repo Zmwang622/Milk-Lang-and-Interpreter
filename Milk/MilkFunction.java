@@ -13,6 +13,13 @@ class MilkFunction implements MilkCallable
 		this.closure = closure;
 	}
 
+	MilkFunction bind(MilkInstance instance)
+	{
+		Environment environment = new Environment(closure);
+		environment.define("this", instance);
+		return new MilkFunction(declartaion, environment);
+	}
+	
 	@Override
 	public Object call(Interpreter interpreter, List<Object> arguments)
 	{
@@ -28,7 +35,7 @@ class MilkFunction implements MilkCallable
 		} catch(Return returnValue) {
 			return returnValue.value;
 		}
-		
+
 		return null;
 	}
 

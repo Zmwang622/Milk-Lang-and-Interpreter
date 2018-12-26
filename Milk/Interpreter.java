@@ -95,6 +95,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		((MilkInstance) object).set(expr.name, value);
 		return value;
 	}
+
+	@Override
+	public Object visitThisExpr(Expr.This expr)
+	{
+		return lookUpVariable(expr.keyword, expr);
+	}
 	/***
 
 	 Unary expression: -, !

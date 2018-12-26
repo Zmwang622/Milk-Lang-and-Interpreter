@@ -17,7 +17,7 @@ class MilkClass implements MilkCallable
 	MilkFunction findMethod(MilkInstance instance, String name)
 	{
 		if(methods.containsKey(name))
-			return methods.get(name);
+			return methods.get(name).bind(instance);
 
 		return null;
 	}
