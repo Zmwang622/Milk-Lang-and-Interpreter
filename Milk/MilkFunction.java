@@ -6,9 +6,12 @@ class MilkFunction implements MilkCallable
 {
 	private final Stmt.Function declaration;
 	private final Environment closure;
+	private final boolean isInitializer;
 
-	MilkFunction(Stmt.Function declaration, Environment closure)
+	MilkFunction(Stmt.Function declaration, Environment closure,
+				 boolean isInitializer)
 	{
+		this.isInitializer = isInitializer;
 		this.declaration = declaration;
 		this.closure = closure;
 	}
@@ -17,9 +20,9 @@ class MilkFunction implements MilkCallable
 	{
 		Environment environment = new Environment(closure);
 		environment.define("this", instance);
-		return new MilkFunction(declartaion, environment);
+		return new MilkFunction(declaration, environment, isInitializer);
 	}
-	
+
 	@Override
 	public Object call(Interpreter interpreter, List<Object> arguments)
 	{
@@ -33,9 +36,13 @@ class MilkFunction implements MilkCallable
 		try{
 			interpreter.executeBlock(declaration.body, environment);
 		} catch(Return returnValue) {
+			if(isInitializer)
+				return closure.getAt(0,"this");
 			return returnValue.value;
 		}
 
+		if(isInitializer)
+			return closure.getAt(0, "this");
 		return null;
 	}
 

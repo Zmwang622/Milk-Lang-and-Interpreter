@@ -33,12 +33,21 @@ class MilkClass implements MilkCallable
 	public Object call(Interpreter interpreter, List<Object> arguments)
 	{
 		MilkInstance instance = new MilkInstance(this);
+		MilkFunction intializer = methods.get("init");
+		if(intializer != null)
+		{
+			intializer.bind(instance).call(interpreter, arguments);
+		}
+
 		return instance;
 	}
 
 	@Override
 	public int arity()
 	{
-		return 0;
+		 MilkFunction intializer = methods.get("init");
+		 if(intializer == null)
+		 	return 0;
+		 return initializer.arity();
 	}
 }
