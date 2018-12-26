@@ -340,6 +340,16 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	@Override
 	public Void visitClassStmt(Stmt.Class stmt)
 	{
+		Object superclass = null;
+		if(stmt.superclass != null)
+		{
+			superclass = evaluate(stmt.superclass);
+			if(!(superclass instanceof MilkClass))
+			{
+				throw new RuntimeError(stmt.superclass.name,
+					"Superclass must be a class.");
+			}
+		}
 		environment.define(stmt.name.lexeme, null);
 
 		Map<String, MilkFunction> methods = new HashMap<>();
@@ -350,7 +360,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			methods.put(method.name.lexeme, function);
 		}
 
-		MilkClass klass = new MilkClass(stmt.name.lexeme, methods);
+		MilkClass klass = new MilkClass(stmt.name.lexeme, 
+			(MilkClass) superclass, methods);
+		
+
 		environment.assign(stmt.name, klass);
 		return null;
 	}

@@ -6,9 +6,11 @@ import java.util.Map;
 class MilkClass implements MilkCallable
 {
 	final String name;
+	final MilkClass superclass;
 	private final Map<String, MilkFunction> methods;
 
-	MilkClass(String name, Map<String, MilkFunction> methods)
+	MilkClass(String name, MilkClass superclass,
+		Map<String, MilkFunction> methods)
 	{
 		this.name = name;
 		this.methods = methods;
@@ -18,7 +20,10 @@ class MilkClass implements MilkCallable
 	{
 		if(methods.containsKey(name))
 			return methods.get(name).bind(instance);
-
+		if(superclass != null)
+		{
+			return superclass.findMethod(instance, name);
+		}
 		return null;
 	}
 
