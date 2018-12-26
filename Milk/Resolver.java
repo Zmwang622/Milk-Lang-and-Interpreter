@@ -25,7 +25,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 
 	private enum ClassType{
 		NONE,
-		CLASS
+		CLASS,
+		SUBCLASS
 	}
 
 	private ClassType currentClass = ClassType.NONE;
@@ -124,10 +125,17 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 
 		if(stmt.superclass != null)
 		{
+			currentClass = ClassType.SUBCLASS;
 			resolve(stmt.superclass);
 		}
-		
+
 		define(stmt.name);
+
+		if(stmt.superclass != null)
+		{
+			beginScope();
+			scopes.peek().put("super", true);
+		}
 
 		beginScope();
 		scopes.peek().put("this", true);
@@ -143,6 +151,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 		}
 
 		endScope();
+
+		if(stmt.superclass != null)
+			endScope();
 
 		currentClass = enclosingClass;
 		return null;	
@@ -281,6 +292,24 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 	{
 		resolve(expr.value);
 		resolve(expr.object);
+		return null;
+	}
+
+	@Override
+	public Void visitSuperExpr(Expr.Super expr)
+	{
+		if(currentClass == ClassType.NONE)
+		{
+			Milk.error(expr.keyword,
+				"Cannot use 'super' outside of a class.");
+		} 
+
+		else if (currentClass != ClassType.SUBCLASS)
+		{
+			Milk.error(expr.keyword,
+				"Cannot use 'super' in a class with no superclass");
+		}
+		resolveLocal(expr, expr.keyword);
 		return null;
 	}
 

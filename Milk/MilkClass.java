@@ -14,6 +14,7 @@ class MilkClass implements MilkCallable
 	{
 		this.name = name;
 		this.methods = methods;
+		this.superclass = superclass;
 	}	
 
 	MilkFunction findMethod(MilkInstance instance, String name)
@@ -50,8 +51,8 @@ class MilkClass implements MilkCallable
 	@Override
 	public int arity()
 	{
-		 MilkFunction intializer = methods.get("init");
-		 if(intializer == null)
+		 MilkFunction initializer = methods.get("init");
+		 if(initializer == null)
 		 	return 0;
 		 return initializer.arity();
 	}
