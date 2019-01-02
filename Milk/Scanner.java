@@ -30,7 +30,7 @@ class Scanner
 	private int current = 0;
 	private int line = 1;
 
-	//Map of all alphanumeric keywords
+	//Map of all alphanumeric keywords, it really is alot.
 	private static final Map<String, TokenType> keywords;
 
 	static
@@ -42,7 +42,7 @@ class Scanner
 	 keywords.put("false", FALSE);
 	 keywords.put("for", FOR);
 	 keywords.put("if", IF);
-	 keywords.put("ming", MING);
+	 keywords.put("ming", MING);//that's me!
 	 keywords.put("nil", NIL);
 	 keywords.put("or", OR);
 	 keywords.put("print", PRINT);
@@ -255,8 +255,12 @@ class Scanner
 		addToken(STRING, value);
 	}
 	/***
-	 Helper method that processes numbers.
-	*/
+	 * Private Helper Method that processes numerical lexemes. 
+	 * The initial while loops keeps consuming numbers until peek() doesn't return a number.
+	 * Then it looks for a '.' followed by a number, indicating a decimal value.
+	 * Finally adds the token with a parsed double.
+	 * Milk is dynamically typed so 
+	 */
 	private void number()
 	{	
 		// Find the full digit
@@ -268,7 +272,8 @@ class Scanner
 		// After finding the full digit, we look for the decimal portion
 		// followed by at least one digit
 		if(peek() == '.' && isDigit(peekNext()))
-		{
+		{	
+			//Consume the '.'
 			advance();
 
 			//If it is a decimal, get as many #s as possible
@@ -282,6 +287,12 @@ class Scanner
 			Double.parseDouble(source.substring(start,current)));
 	}
 
+	/***
+	 * Private method used for identifiers. 
+	 * Initial loop finds the entire identifier name. Like before, it uses advance() to update current, but retain initial start.
+	 * Checks to see if the HashMap, keywords, contains the recently found identifier.
+	 * If so, we use the keyword's token type. Otherwise use the user-defined. 
+	 */
 	private void identifier()
 	{
 		/***
@@ -382,6 +393,8 @@ class Scanner
 
 	 Alternate: Could've had peek take a parameter, but this is more 
 	 readable.
+	 
+	 @return the next-next (pretend the second next is italicized for dramatic effect) character in the statement.
 	*/
 	private char peekNext()
 	{
@@ -392,17 +405,36 @@ class Scanner
 
 		return source.charAt(current+1);
 	}
-
+	
+	/***
+	 * Private helper used to determine if the token is an identifier/keyword like nil or for.
+	 * 
+	 * @param c the current character we are processing
+	 * @return true if its a letter, false if not.
+	 */
 	private boolean isAlpha(char c)
 	{
 		return (c >= 'a' && c <= 'z') ||      
            (c >= 'A' && c <= 'Z') ||      
             c == '_';   
 	}
+	/***
+	 * Private method used in identifier(), helps calls isAlpha and isDigit
+	 * Used because, some identifiers, like variables can have letters and numbers
+	 * @param c the current character we are processing
+	 * @return true if the char is a letter or digit, else false
+	 */
 	private boolean isAlphaNumeric(char c)
 	{
 		return isAlpha(c) || isDigit(c);
 	}
+	
+	/***
+	 * Private Helper method that determines whether a char is a digit or not
+	 * 
+	 * @param c the current character we are processing
+	 * @return true if is digit, false if not. CRAZY STUFF *mind blown
+	 */
 	private boolean isDigit(char c)
 	{
 		return c >= '0' && c <= '9';
