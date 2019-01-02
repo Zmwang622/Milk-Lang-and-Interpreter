@@ -21,3 +21,13 @@ class Thing {
 
 var callback = Thing().getCallback();
 callback(); 
+
+class Bacon
+{
+  eat()
+  {
+     print "Chew Chew Chew!";
+  }
+}
+
+Bacon().eat();

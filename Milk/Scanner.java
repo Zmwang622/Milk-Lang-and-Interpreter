@@ -53,12 +53,20 @@ class Scanner
 	 keywords.put("var", VAR);
 	 keywords.put("while", WHILE);
 	}
-	//Constructor
+	/***
+	 * The Scanner's constructor. 
+	 * @param source the given code
+	 */
 	Scanner(String source)
 	{
 		this.source = source;
 	}
 
+	/***
+	 * Scanner method. 
+	 * <p>
+	 * The scanner works its way through the code and emits tokens until it reaches the end. 
+	 */
 	List<Token> scanTokens()
 	{
 		while(!isAtEnd())
@@ -71,15 +79,20 @@ class Scanner
 		return tokens;
 	}
 
+	/***
+	 * Simple helper method that determines if the scanner has reached the end of the code or not. 
+	 */
 	private boolean isAtEnd()
 	{
 		return current >= source.length();
 	}
 
 	/*** 
-	 Each run we will scan a single token. 
-	 Consume the net character and pick a token type for it.
-	*/
+	 * Scans each token and processes it accordingly.
+	 * <p>
+	 * Calls a bunch of helper methods, because why not. 
+	 * Each call is based off the current token.
+	 */
 	private void scanToken()
 	{
 		char c = advance();
@@ -207,8 +220,12 @@ class Scanner
 	}
 
 	/***
-	Processing strings
-	*/
+	 * Method that deals with strings
+	 * It keeps processing until it reaches a " or EOF (which is an error).
+	 * By calling advance() in the while loop, the scanner updates current while retaining the start position.
+	 * Multi lined strings are allowed, but line must get that ++.
+	 * When adding the token we add the actual string value as well. It's for the interpreter.
+	 */
 	private void string()
 	{
 		while(peek() != '"' && !isAtEnd())
@@ -287,8 +304,9 @@ class Scanner
 	}
 
 	/***
-	 Increments char by one. Allows us to move through the source string
-	*/
+	 * Private helper method that increments the scanner to the next char. 
+	 * @return the current character.
+	 */
 	private char advance()
 	{
 		current++;
@@ -296,6 +314,13 @@ class Scanner
 	}
 
 	//Helper method.
+	/***
+	 * Private helper method called in scanToken()
+	 * <p>
+	 * Passes the TokenType type to the overloaded addToken() method.
+	 * 
+	 * @param type the TokenType given from the scanToken() method.
+	 */
 	private void addToken(TokenType type)
 	{
 		addToken(type,null);
@@ -303,6 +328,11 @@ class Scanner
 
 	//Adds the token to the list
 	//Grabs text of the current lexeme and creates a new token for it
+	/***
+	 * 
+	 * @param type the TokenType
+	 * @param literal 
+	 */
 	private void addToken(TokenType type, Object literal)
 	{
 		String text = source.substring(start,current);
@@ -310,8 +340,13 @@ class Scanner
 	}
 
 	/***
-	 Helps determine if the lexeme is ! or !=
-	*/
+	 * Private helper method called in scanToken() that determines the operator
+	 * <p>
+	 * If the scanner is at the end of the code... it can't match to anything
+	 * If the char doesn't match the character at the scanner's current position, returns false;
+	 * If they do match, the scanner advances and returns true.
+	 * @return true if they match, false if they don't.
+	 */
 	private boolean match(char expected)
 	{
 		if(isAtEnd())
@@ -329,6 +364,8 @@ class Scanner
 	/***
 	 Lookahead method, that only looks at the current character, rather
 	 than consume the character. 
+	 
+	 @return the next character.
 	*/
 	private char peek()
 	{

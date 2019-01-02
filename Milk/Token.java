@@ -10,7 +10,15 @@ class Token
 	final String lexeme;
 	final Object literal;
 	final int line;
-
+	
+	/***
+	 * Token constructor
+	 * 
+	 * @param type The TokenType. Is it a Nil or True or whatever...
+	 * @param lexeme String version of the lexeme.
+	 * @param literal
+	 * @param line The line the token was found on.
+	 */
 	Token(TokenType type, String lexeme, Object literal, int line)
 	{
 		this.type = type;

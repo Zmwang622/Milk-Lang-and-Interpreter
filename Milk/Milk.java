@@ -44,6 +44,8 @@ public class Milk
 	* Creates an array of byte that is based off a file path, path.; 
 	* Then calls run on the newly created array.
 	* If there is an error, exit ASAP.
+	* 
+	* @param path User-given path to the text file that contains the Milk code.
 	*/
 	private static void runFile(String path) throws IOException 
 	{
@@ -63,6 +65,8 @@ public class Milk
 	* Used when no arguments are given
 	* "A more intimate way of using Milk"
 	* prints > for each line the user inputs
+	* 
+	* @throws IOException if input is illegal code.
 	*/
 	private static void runPrompt() throws IOException
 	{
@@ -78,10 +82,6 @@ public class Milk
 	}
 
 	/*** 
-	* Incredibly underwhelmin right now.
-	* Can only print on each token because, Scanner and Implementer
-	* are not ready.
-
 	 Note on lexical analysis: 
 	 Must scan through the list of characterss and group them 
 	 into the smalles sequences that still have meaning. 
@@ -91,6 +91,8 @@ public class Milk
 	 [var] [language] [=] ["Milk"] [;]
 
 	 Must learn how to identify each lexeme
+	 
+	 @param source is the code given.
 	*/
 	private static void run(String source)
 	{
@@ -118,6 +120,9 @@ public class Milk
 	* When the code work, user only focuses on their program. When code 
 	* breaks down we must give them as much information as possible
 	* to guide them and help them understand what they did wrong. 
+	* 
+	* @param line the line #
+	* @param message The error message given from where the error occurred.
 	*/
 
 	static void error(int line, String message)
