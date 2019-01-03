@@ -27,16 +27,20 @@ class Parser
 	/***
 	 
 	 Sentinel class used to unwind parser. error() returns it 
-	 rather than thwoing because we want the called decide whether
+	 rather than throwing because we want the called decide whether
 	 to unwind it or not. 
 
 	*/
 	private static class ParseError extends RuntimeException{}
-
+	
 	private final List<Token> tokens;
 	//Current points at the new token to be used.
 	private int current = 0;
-
+	/***
+	 * Parser constructor. Consumes a sequence at the token level.
+	 * int field current points to the next token.
+	 * @param tokens the list of tokens ready to be parsed.
+	 */
 	Parser(List<Token> tokens)
 	{
 		this.tokens = tokens;
@@ -50,11 +54,14 @@ class Parser
 	 
 	 Start from the highest part of the syntax ladder.
 	 
-	 program → declaration* EOF ;
-	 declaration → varDecl | statement ;
+	 program â†’ declaration* EOF ;
+	 declaration â†’ varDecl | statement ;
 	 Statement syntax:
-	 statement → exprStmt | ifStmt | printStmt | block;
-	
+	 statement â†’ exprStmt | ifStmt | printStmt | block;
+	 
+	 This is the method that starts it all. Begins the recursive descent.
+	 
+	 @return the list of parsed statements.
 	*/
 	List<Stmt> parse()
 	{
@@ -303,6 +310,9 @@ class Parser
 		return expr;
 	}
 	//First grammar rule, expression, expands to the equality rule.
+	/***
+	 * Expands the assignment rule.
+	 */
 	private Expr expression()
 	{
 		return assignment();
@@ -349,7 +359,7 @@ class Parser
 	/***
 	
 	The rule for equality:
-	equality → comparison ( ( "!=" | "==" ) comparison )* ;
+	equality â†’ comparison ( ( "!=" | "==" ) comparison )* ;
 	
 	The left comparison nonterminal in the body is translated to the
 	first call to comparison() and store that in the local variable, 
@@ -366,6 +376,7 @@ class Parser
 
 		while(match(BANG_EQUAL,EQUAL_EQUAL))
 		{
+			//The previous token was either a != or ==;
 			Token operator = previous();
 			Expr right = comparison();
 			expr = new Expr.Binary(expr, operator, right);
@@ -377,11 +388,11 @@ class Parser
 	/***
 	 
 	 The rule for comparison. 
-	 comparison → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
+	 comparison â†’ addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
 	
-	 Follows the same pattern of equality(), but this time with 
-	 addition. The other binary operators follow the same pattern
+	 Starts with addition(). Then continuously looks for <, <= , > , >=. 
 
+	 @return the comparison expression..
 	*/
 	private Expr comparison()
 	{
@@ -396,7 +407,18 @@ class Parser
 
 		return expr;
 	}
-
+	
+	/***
+	 * How to parse addition.
+	 *
+	 * Addition's rule:
+	 * addition â†’ multiplication ( ( "-" | "+" ) multiplication )* ; 
+	 *
+	 * Opens up to multiplication. If the next token is a + or -, it continues to concatenate the addition statement. Otherwise, it returns
+	 * the multiplication expression.
+	 * 
+	 * @return expr the addition expression
+	 */
 	private Expr addition()
 	{
 		Expr expr = multiplication();
@@ -410,7 +432,14 @@ class Parser
 
 		return expr;
 	}
-
+	
+	/***
+	 * Rule for Multiplication
+	 * multiplication â†’ unary ( ( "/" | "*" ) unary )* ;
+	 * 
+	 * Just like addition, but this time we first look for the unary value. Then if a / or * follow we create the multiplication statement.
+	 * Otherwise we return the unary expression.
+	 */
 	private Expr multiplication()
 	{
 		Expr expr = unary();
@@ -428,13 +457,14 @@ class Parser
 	/***
 	 
 	 Unary Rule:
-	 unary → ( "!" | "-" ) unary | primary ;
+	 unary â†’ ( "!" | "-" ) unary | primary ;
 
-	 Code differs from biary operators
+	 Code differs from binary operators
 	
 	 If the token is a ! or -, we have a unary expression.
 	 Now recursively call it again until the expression is done.
-
+	
+	 @return 
 	*/
 
 	private Expr unary()
@@ -472,9 +502,10 @@ class Parser
 	/***
 
 	 Call rule:
-	 unary → ( "!" | "-" ) unary | call ;
-     call  → primary ( "(" arguments? ")" )* ;	 
-
+	 unary â†’ ( "!" | "-" ) unary | call ;
+     call  â†’ primary ( "(" arguments? ")" )* ;	 
+	 First find the primary value.
+	 
 	*/
     private Expr call()
     {
@@ -505,14 +536,15 @@ class Parser
 	/***
 	 
 	 Primary Rule:
-	 primary → NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" ;
-	  
+	 primary â†’ "true" | "false" | "nil" | "this" | NUMBER | STRING | IDENTIFIER | "(" expression ")" | "super" "." IDENTIFIER ;
 	 Highest level of precedence.
-
+	 
+	 @returns the correct expression for the current (well now previous) token
 	*/
 
 	 private Expr primary()
 	 {
+		//If we get a false, true, or nil, we return false, true, or nil, respectively. 
 	 	if(match(FALSE))
 	 		return new Expr.Literal(false);
 	 	if(match(TRUE))
@@ -520,11 +552,15 @@ class Parser
 	 	if(match(NIL))
 	 		return new Expr.Literal(null);
 
+	 	//if we match a # or string, we'll return a literal with the value of the previous token.
 	 	if(match(NUMBER, STRING))
 	 	{
 	 		return new Expr.Literal(previous().literal);
 	 	}
-
+	 	
+	 	//if we match a super, we first find the previous keyword. 
+	 	//Then we consume the '.' and find then consume the method name. 
+	 	//Now return a super expr with the keyword and method.
 	 	if(match(SUPER))
 	 	{
 	 		Token keyword = previous();
@@ -533,13 +569,16 @@ class Parser
 	 			"Expect superclass method name.");
 	 		return new Expr.Super(keyword, method);
 	 	}
-
+	 	//If we match a this, return a this expression with the previous token.
 	 	if(match(THIS))
 	 		return new Expr.This(previous());
+	 	//If we find a identifier, return a variable expression with the previous token.
 	 	if(match(IDENTIFIER))
 	 	{
 	 		return new Expr.Variable(previous());
 	 	}
+	 	//If we find a left parentheses, we consume until we find the right one. 
+	 	//return a grouping with the expression inside.
 	 	if(match(LEFT_PAREN))
 	 	{
 	 		Expr expr = expression();
@@ -552,6 +591,11 @@ class Parser
 	 }
 
 	//Checks to see if the current token is any of the given types.
+	/***
+	 * 
+	 * @param types the given enum of TokenTypes.
+	 * @return true if check() is true for a type. False if none of the types given work.
+	 */
 	private boolean match(TokenType... types)
 	{
 		for(TokenType type: types)
@@ -589,6 +633,7 @@ class Parser
 	*/
 	private Token consume(TokenType type, String message)
 	{	
+		//If type matches the next token, we continue. Otherwise we will throw an error
 		if(check(type))
 			return advance();
 
@@ -596,6 +641,12 @@ class Parser
 	}
 
 	//Only looks at the current type and see if it matches. 
+	/***
+	 * Private helper used for match(). Checks to see if a singular type is equal to the next type in the code.
+	 * 
+	 * @param type the TokenType being checked.
+	 * @return true if the token returned by peek() has the same TokenType as type. False if otherwise.
+	 */
 	private boolean check(TokenType type)
 	{
 		if(isAtEnd())
@@ -604,10 +655,10 @@ class Parser
 	}
 	
 	/***
-	 Consumes the current token, and returns it.
-
-	 Just like the scanner's advance().
-	*/
+	 * Like the scanner's advance() but on a token level rather than a character level.
+	 * Increments current by one.
+	 * @return the previous token.
+	 */
 	private Token advance()
 	{
 		if(!isAtEnd())
@@ -617,25 +668,37 @@ class Parser
 		return previous();
 	}
 
-	//Checks if we've run out of tokens to parse
+	/***
+	 * We know we are at the end of the code, if the next token in tokens is an EOF.
+	 * @return true if at end, false if not
+	 */
 	private boolean isAtEnd()
 	{
 		return peek().type == EOF;
 	}
 
-	//Returns the current token we have yet to consume
+	/***
+	 * @return the next token.
+	 */
 	private Token peek()
 	{
 		return tokens.get(current);
 	}
 
-	//Returns most recently consumed token
+	/***
+	 * @return the most recent token.
+	 */
 	private Token previous()
 	{
 		return tokens.get(current-1);
 	}
 
 	//Error method, ParseError is a static class in Parser.java
+	/***
+	 * First calls Milk's error method, which prints out the line of the error and what not. 
+	 * 
+	 * @return a Parse error, which is a run time error.
+	 */
 	private ParseError error(Token token, String message)
 	{
 		Milk.error(token, message);
@@ -663,6 +726,7 @@ class Parser
 	Call this after we catch a ParseError on the statement level, and
 	we'll hopefully be back on track.
 
+	Essentially it clears the JavaSTack after the recursive descent process is over.
 	*/
 	private void synchronize()
 	{
