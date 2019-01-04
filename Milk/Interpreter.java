@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-
+//Imagine the ASTPrinter, but instead of concatenating strings, it computes values.
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 {
 	final Environment globals = new Environment();
@@ -34,7 +34,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			}
 		});
 	}
-
+	/***
+	 * This is the method that starts up the whole interpretre.
+	 * it takes the list of statements and process them one by one. 
+	 * Expressions are within Statements.
+	 */
 	void interpret(List<Stmt> statements)
 	{
 		try{
@@ -54,6 +58,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	 already stuffed literal tokens with the runtime value, so for the
 	 visit we simply pull the value back out.
 	
+	 @return the literal's value...pretty simple. 
 	*/
 
 	@Override
@@ -131,23 +136,28 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	 Evaluation performs a post-order traversal: each node evaluates 
 	 its children before doing its own work.
 
+	 @returns either t
 	*/
 	@Override
 	public Object visitUnaryExpr(Expr.Unary expr)
 	{
+		//
 		Object right = evaluate(expr.right);
-
+		//These getters are extremely specific.
 		switch(expr.operator.type)
 		{
-			
+			//if it's a BANG (!) than return its opposite.
 			case BANG:
 				return !isTruthy(right);
 			//If the operator is a - we know it preceds a number
 			case MINUS:
+				//Need to make sure the right is a number (that way we can cast it as a double) 
+				//Dynamic-Casting happens right here!
 				checkNumberOperand(expr.operator, right);
+				//Cool that we still use the JVM for stuff.
 				return -(double)right;
 		}
-
+		//Impossible to reach. 
 		return null;
 	}
 
@@ -169,6 +179,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			return globals.get(name);
 		}
 	}
+	
+	/***
+	 * The checkNumberOperand(s)() methods are the error-handling of Milk
+	 * They are incredibly important.
+	 * They all throw RuntimeError, a custom error class.
+	 */
 
 	//Validator that ensures operands are correct
 	private void checkNumberOperand(Token operator, Object operand)
@@ -189,8 +205,19 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 
 	/***
 	 
-	 Binary Expressions: + - / * % etc.
-
+	 Binary Expressions: 
+	 Two types:
+	 Numerical Binary Expressions (+, -, /, *, %, etc.)
+	 a. Involve numbers, so must check number operands.
+	 b. Return a number value.
+	 Boolean Binary Expressions (!=, ==, >,etc.)
+	 a. Some, like > and <, involve numbers, so gotta check there. 
+	 b. Others like ,== and !=, don't so you just do the thang.
+	 c. Returns a boolean value.
+	 Special Case
+	 a. + can be used to concatenate strings and numbers.
+	 b. Returns a string, if an operand is a string. Otherwise, + returns a number.x
+	 @return truly depends on the operator, but it can range from a number to a boolean value. enticing.
 	*/
 
 	 //Get the left and right, and then evaluate the middle operator.
@@ -224,7 +251,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	 			{
 	 				return (double) left + (double) right;
 	 			}
-
+	 			//Also if one is string and the other double, need to account for that.
+	 			//Ex: 2+string returns 2string.
 	 			if(left instanceof Double && right instanceof String)
 	 			{
 	 				String stringLeft = left.toString();
@@ -310,19 +338,34 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	 Grouping node as reference to an inner node for the expr inside 
 	 the parentheses. Recursively evaluate the subexpression and 
 	 return it.
-
+	 
+	 Grouping is easy because in its node, we have the expression. We use evaluate on the inner expression.
+	 What evaluate returns is dependent on what type expression is. If it is a literal, it will use visitLiteralExpr(), if its a binary 
+	 expression it uses visitBinaryExpr() etc. etc.
+	 
+	 @return an object, depends on what type expr.expression is.
 	*/	
 	@Override
 	public Object visitGroupingExpr(Expr.Grouping expr)
 	{
 		return evaluate(expr.expression);
 	}
-
+	
+	/***
+	 * Sends the expression expr back into the visitor pattern.
+	 * @param an expression
+	 * @return depends on what type expr is.
+	 */
 	private Object evaluate(Expr expr)
 	{
 		return expr.accept(this);
 	}
-
+	
+	/***
+	 * The statement version of evaluate().
+	 * 
+	 * @return depends on what type statement is.
+	 */
 	private void execute(Stmt stmt)
 	{
 		stmt.accept(this);
@@ -501,6 +544,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	Milk's rules: false and nil are falsey, everything else
     is truthy.
 	
+	@return false if the object is null, if its boolean return it. Otherwise, if its not null or boolean, return true.
 	*/
 
 	private boolean isTruthy(Object object)
@@ -512,6 +556,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		return true;
 	}         
 
+	/***
+	 * Checks to see if values are equal.
+	 * 
+	 * @return if both are null, true. If one is null, false. All other cases use .equals()
+	 */
 	private boolean isEqual(Object a, Object b)
 	{
 		if(a==null && b == null)
@@ -520,7 +569,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			return false;
 		return a.equals(b);
 	}
-
+	
+	/***
+	 * Originally used in interpret(), before expressions were added.
+	 * Turns any object to a string.
+	 * 
+	 * @return the string version of inputted object.
+	 */
 	private String stringify(Object object)
 	{
 		if(object == null)

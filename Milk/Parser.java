@@ -57,7 +57,7 @@ class Parser
 	 program â†’ declaration* EOF ;
 	 declaration â†’ varDecl | statement ;
 	 Statement syntax:
-	 statement â†’ exprStmt | ifStmt | printStmt | block;
+	 statement â†’ exprStmt | ifStmt | printStmt | block | returnStmt | whileStmt;
 	 
 	 This is the method that starts it all. Begins the recursive descent.
 	 
@@ -75,7 +75,14 @@ class Parser
 	}
 
 	// Statement parser: for all my statement needs
-
+	/***
+	 * The granddaddy of all expressions and what not. 
+	 * Statements are what make up programs.
+	 * 
+	 * Checks if the next token is any statement other than an expression. 
+	 * 
+	 * @return the statement based on the next char.
+	 */
 	private Stmt statement()
 	{
 		if(match(FOR))
@@ -162,10 +169,19 @@ class Parser
 
 		return new Stmt.If(condition, thenBranch, elseBranch);
 	}
-
+	
+	/***
+	 * Print Syntax:
+	 * printStmt â†’ "print" expression ";" ;
+	 *
+	 * Already consumed the print statement so now we just find the expression and consume the semicolon. 
+	 * @return a print statement containing its expression value.
+	 */
 	private Stmt printStatement()
-	{
+	{	
+		//grab the expression
 		Expr value = expression();
+		//consume the expected semicolon. This is error-handling.
 		consume(SEMICOLON, "Expect ';' after value.");
 		return new Stmt.Print(value);
 	}
@@ -209,7 +225,14 @@ class Parser
 
 		return new Stmt.While(condition, body);
 	}
-
+	
+	/***
+	 *  Expression syntax:
+	 *  expression â†’ assignment;
+	 *  
+	 *  Incredibly simple: Find the expression, and then consume the semicolon.
+	 *  @return an expression statement with the expression bundled inside it.
+	 */
 	private Stmt expressionStatement()
 	{	
 		Expr expr = expression();
@@ -312,6 +335,7 @@ class Parser
 	//First grammar rule, expression, expands to the equality rule.
 	/***
 	 * Expands the assignment rule.
+	 * Start of the chain for any expression statement
 	 */
 	private Expr expression()
 	{
