@@ -2,7 +2,11 @@ package JavaInterpreter.Milk;
 
 import java.util.HashMap;
 import java.util.Map;
-
+/***
+ * Hash-table based Environment
+ * Keys are Variable names
+ * Values are the variable's values.
+ */
 class Environment{
 	//Environment reference to the environment that encloses it. Allows traversal
 	final Environment enclosing;
@@ -19,7 +23,11 @@ class Environment{
 	{
 		this.enclosing = enclosing;
 	}
-
+	
+	/***
+	 * Method for variable defining.
+	 * Variables name is name, its values is value. Wow who'd thought.
+	 */
 	void define(String name, Object value)
 	{
 		values.put(name, value);
@@ -44,7 +52,13 @@ class Environment{
 	{
 		ancestor(distance).values.put(name.lexeme, value);
 	}
-
+	
+	/***
+	 * Variable Lookup Method.
+	 * 
+	 * @throws RuntimeError if variable name doesn't exist
+	 * @return The variable's data. Or a Runtime error.
+	 */
 	Object get(Token name)
 	{
 		if(values.containsKey(name.lexeme))

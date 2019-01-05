@@ -15,7 +15,7 @@ public class Milk
 {   
 	// hadError ensures that we don't try excuting code when there is a known error
 	private static final Interpreter interpreter = new Interpreter();
-	//Used to system.exit in runFile()
+	//Used to system.exit in runFile()w]
 	static boolean hadError = false;
 	static boolean hadRuntimeError = false;
 	/*** 

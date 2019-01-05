@@ -34,6 +34,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			}
 		});
 	}
+	
 	/***
 	 * This is the method that starts up the whole interpretre.
 	 * it takes the list of statements and process them one by one. 
@@ -50,6 +51,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			Milk.runtimeError(error);
 		}
 	}
+	
 	/***
 	 
 	 Literal: a bit of syntax that produces a value. Number String
@@ -160,7 +162,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		//Impossible to reach. 
 		return null;
 	}
-
+	
+	/***
+	 * Variable Evaluation method
+	 * Uses the helper method lookUpVariable.
+	 * @return the variable's data.
+	 */
 	@Override
 	public Object visitVariableExpr(Expr.Variable expr)
 	{
@@ -440,7 +447,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		environment.assign(stmt.name, klass);
 		return null;
 	}
-
+	/***
+	 * Evaluate the statement's inner expression, discarding the value.
+	 * @return null;
+	 */
 	@Override
 	public Void visitExpressionStmt(Stmt.Expression stmt)
 	{
@@ -448,7 +458,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		return null;
 	}
 
-
+	
 	@Override
 	public Void visitFunctionStmt(Stmt.Function stmt)
 	{
@@ -471,7 +481,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 
 		return null;
 	}
-
+	
+	/***
+	 * Evaluates the print statement's expression.
+	 * Then prints it out.
+	 * @return null;
+	 */
 	@Override
 	public Void visitPrintStmt(Stmt.Print stmt)
 	{

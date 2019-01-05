@@ -199,7 +199,17 @@ class Parser
 		consume(SEMICOLON, "Expect ';' after return value.");
 		return new Stmt.Return(keyword, value);
 	}
-
+	
+	/***
+	 * Variable Rule:
+	 * varDecl â†’ "var" IDENTIFIER ( "=" expression )? ";" 
+	 * 
+	 * Follow the variable rule. The "var" is already consumed.
+	 * Grab the identifier (variable name). 
+	 * Depending if there is an = sign or not, do accordingly.
+	 * Consume the final semicolon.
+	 * @return the Variable packed with its name and initializer which is either null or some expression.
+	 */
 	private Stmt varDeclaration()
 	{
 		Token name = consume(IDENTIFIER, "Expect variable name.");
@@ -278,7 +288,11 @@ class Parser
 
 		return statements;
 	}
-
+	
+	/***
+	 * Assignment Rule:
+	 * assignment → IDENTIFIER "=" assignment | equality ;
+	 */
 	private Expr assignment()
 	{
 		Expr expr = or();
@@ -334,6 +348,9 @@ class Parser
 	}
 	//First grammar rule, expression, expands to the equality rule.
 	/***
+	 * Expression Rule:
+	 * expression â†’ assignment ;
+	 * 
 	 * Expands the assignment rule.
 	 * Start of the chain for any expression statement
 	 */
@@ -341,7 +358,12 @@ class Parser
 	{
 		return assignment();
 	}
-
+	/***
+	 * The method we call repeatedly when parsing a series of statements.
+	 * Parser checks within the try block for Class, Ming, and Var calls. Otherwise it goes to the statement method.
+	 * 
+	 * @return depends on the statement type.
+	 */
 	private Stmt declaration()
 	{
 		try{
@@ -353,6 +375,7 @@ class Parser
 				return varDeclaration();
 			return statement();
 		} catch (ParseError e) {
+			//If something messes up, we synchronize on go onto the next token.
 			synchronize();
 			return null;
 		}
