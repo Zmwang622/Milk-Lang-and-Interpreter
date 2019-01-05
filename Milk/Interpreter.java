@@ -382,7 +382,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	{
 		locals.put(expr, depth);
 	}
-
+	
+	/***
+	 * Create a new Environment for the block's scope.
+	 * Executes the list of statements.
+	 * Finally it replaces environment w the previous one. Meaning it goes out of the block environment.
+	 */
 	void executeBlock(List<Stmt> statements, Environment environment)
 	{
 		Environment previous = this.environment;
@@ -400,6 +405,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			this.environment = previous;
 		}
 	}
+	/***
+	 * Block visitor
+	 * Calls executeBlock()
+	 */
 	@Override
 	public Void visitBlockStmt(Stmt.Block stmt)
 	{
@@ -528,7 +537,16 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 
 		return null;
 	}
-
+	/***
+	 * Assignment Visitor
+	 * Assignment doesn't create a new variable, only alters the definition.
+	 * Evaluate the expression's value type.
+	 * 
+	 * 
+	 * Assign the variable into the environment.
+	 * 
+	 * @return The value.
+	 */
 	@Override
 	public Object visitAssignExpr(Expr.Assign expr)
 	{

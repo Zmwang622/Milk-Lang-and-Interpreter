@@ -9,6 +9,7 @@ import java.util.Map;
  */
 class Environment{
 	//Environment reference to the environment that encloses it. Allows traversal
+	//Each environment has a reference to its enclosing environment.
 	final Environment enclosing;
 
 	//A map we can map variables to...makes sense
@@ -65,13 +66,18 @@ class Environment{
 		{
 			return values.get(name.lexeme);
 		}
-
+		//If the value isn't in this scope, we try its enclosing scope.
 		if(enclosing!=null)
 			return enclosing.get(name);
 		throw new RuntimeError(name, 
 			"Undefined variable '" + name.lexeme + "'.");
 	}
-
+	
+	/***
+	 * Changes the value in the environment to value.
+	 * @param name The token being changed
+	 * @param value the new value for name.
+	 */
 	void assign(Token name, Object value)
 	{
 		if(values.containsKey(name.lexeme))
@@ -79,7 +85,7 @@ class Environment{
 			values.put(name.lexeme, value);
 			return;
 		}
-
+		//If the variable isn't in the environment, check the outer ones.
 		if(enclosing != null)
 		{
 			enclosing.assign(name,value);

@@ -89,12 +89,14 @@ class Parser
 			return forStatement();
 		if(match(IF)) 
 			return ifStatement();
+		//print statements
 		if(match(PRINT))
 			return printStatement();
 		if(match(RETURN))
 			return returnStatement();
 		if(match(WHILE))
 			return whileStatement();
+		// { means a block statement
 		if(match(LEFT_BRACE))
 			return new Stmt.Block(block());
 
@@ -274,7 +276,13 @@ class Parser
 		List<Stmt> body = block();
 		return new Stmt.Function(name, parameters, body);
 	}
-
+	
+	/***
+	 * Block Parser.
+	 * Creates an empty list and parses all the statements and adds them to the list.
+	 * 
+	 * @return the list of parsed statements.
+	 */
 	private List<Stmt> block()
 	{
 		List<Stmt> statements = new ArrayList<>();
@@ -295,11 +303,14 @@ class Parser
 	 */
 	private Expr assignment()
 	{
+		//Parse the l-value
 		Expr expr = or();
-
+		
+		//If we find an = we parse the right side. Otherwise no.
 		if(match(EQUAL))
 		{
 			Token equals = previous();
+			//Recursively call assignment to parse the right side.
 			Expr value = assignment();
 
 			if(expr instanceof Expr.Variable)
