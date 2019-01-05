@@ -68,7 +68,16 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	{
 		return expr.value;
 	}	
-
+	
+	/***
+	 * Logical Expression (And and OR) visitor
+	 * 
+	 * Or:
+	 * If the left is truthy, we know the Or statement is true.
+	 * 
+	 * And:
+	 * If the left isn't truthy, we know the and statement isn't true.
+	 */
 	@Override 
 	public Object visitLogicalExpr(Expr.Logical expr)
 	{
@@ -84,7 +93,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			if(!isTruthy(left))
 				return left;
 		}
-
+		//If the left is true in an AND statement, we check the right value to see if it is true.
 		return evaluate(expr.right);
 	}
 
@@ -476,7 +485,14 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		environment.define(stmt.name.lexeme, function);
 		return null;
 	}
-
+	
+	/***
+	 *  If Visitor. Uses Java's if statement lol.
+	 *  
+	 *  If the condition is truthy, it executes the then branch
+	 *  Otherwise if there is an else branch it executes it.
+	 */
+	@Override
 	public Void visitIfStmt(Stmt.If stmt)
 	{
 		if(isTruthy(evaluate(stmt.condition)))
@@ -527,6 +543,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		return null;
 	}
 
+	/***
+	 * While Visitor
+	 * Uses Java's while loop.	
+	 */
 	@Override
 	public Void visitWhileStmt(Stmt.While stmt)
 	{

@@ -87,6 +87,7 @@ class Parser
 	{
 		if(match(FOR))
 			return forStatement();
+		//If the keyword is if.
 		if(match(IF)) 
 			return ifStatement();
 		//print statements
@@ -103,65 +104,93 @@ class Parser
 		return expressionStatement();
 	}
 
-
+	/***
+	 * For Loop Parser
+	 * We're gonna do desugaring.
+	 * Instead of using Java's for loop, we'll just reduce the for loop to a while loop.
+	 * @return
+	 */
 	private Stmt forStatement()
 	{
+		//( after for
 		consume(LEFT_PAREN,"Expect '(' after 'for' .");
-
+		//initializer is executed only once. Imagine int i = 0 or something.
 		Stmt initializer;
+		//What the initalizer depends on the match(). It's either nothing, a variable or an expression statement.
 		if(match(SEMICOLON))
 		{
+			//Omitted initializer.
 			initializer = null;
 		}
 		else if(match(VAR))
 		{
+			//Variable declaration.
 			initializer = varDeclaration();
 		}
 		else
 		{
+			//Expression
 			initializer = expressionStatement();
 		}
-
+		//Condition is like i < 10 or something. We've seen it in while loops.
 		Expr condition = null;
 		if(!check(SEMICOLON))
-		{
+		{	
+			//Nab that expression.
 			condition = expression();
 		}
+		///Error handling
 		consume(SEMICOLON, "Expect ';' after loop condition.");
-
+		
+		//Increment keeps the for loop going. Think i++.
 		Expr increment = null;
 		if(!check(RIGHT_PAREN))
 		{
 			increment = expression();
 		}
-
+		//Error handling
 		consume(RIGHT_PAREN,"Expect ')' after for clauses.");
-
+		
+		//Just like the while loop, the body of the for loop is put into one statement.
 		Stmt body = statement();
-
+		
+		//Desugaring begins.
+		//Turn the increment (if there is one) to a new expression.
+		//Create a block where the increment executes after the body each time.
 		if(increment != null)
 		{
 			body = new Stmt.Block(Arrays.asList(
 				body, new Stmt.Expression(increment)));
 		}
-
+		// Condition? Then assume true
 		if(condition == null)
+			//Truth
 			condition = new Expr.Literal(true);
+		//The body is jammed (that doesn't sound right) with the condition and the body from increment section to create a while object.
 		body = new Stmt.While(condition, body);
-
+		
 		if(initializer != null)
 		{
 			body = new Stmt.Block(Arrays.asList(initializer, body));
 		}
+		//Return the body. Didn't have to touch interpreter because we desugared. Incredible.
 		return body;
 	}
 
+	/***
+	 * If Syntax:
+	 * ifStmt â†’ "if" "(" expression ")" statement ( "else" statement )? ;
+	 *
+	 * Already consumed the if. So next step is to consume the "(" + expression + ")"
+	 * Then Branch is the content of the if branch.
+	 */
 	private Stmt ifStatement()
-	{
+	{	
+		
 		consume(LEFT_PAREN, "Expect '(' after 'if'.");
 		Expr condition = expression();
 		consume(RIGHT_PAREN, "Expect ')' after if condition,");
-
+		
 		Stmt thenBranch = statement();
 		Stmt elseBranch = null;
 		if(match(ELSE))
@@ -227,7 +256,14 @@ class Parser
 		consume(SEMICOLON, "Expect ';' after variable declaration.");
 		return new Stmt.Var(name, initializer);
 	}
-
+	
+	/***
+	 * While Syntax:
+	 * whileStmt â†’ "while" "(" expression ")" statement ; 
+	 * 
+	 * Makes sense. Find the condition and the body
+	 * @return the while block.
+	 */
 	private Stmt whileStatement()
 	{
 		consume(LEFT_PAREN, "Expect '(' after 'while'.");
@@ -299,7 +335,7 @@ class Parser
 	
 	/***
 	 * Assignment Rule:
-	 * assignment → IDENTIFIER "=" assignment | equality ;
+	 * assignment → IDENTIFIER "=" assignment | logic_or ;
 	 */
 	private Expr assignment()
 	{
@@ -328,7 +364,15 @@ class Parser
 		}
 		return expr;
 	}
-
+	
+	/***
+	 * Or Parser
+	 * Builds the or block.
+	 *  Left || Right
+	 * and() || and()
+	 * expr is the left value of the or block.
+	 * @return the or statement.
+	 */
 	private Expr or()
 	{
 		Expr expr = and();
@@ -344,10 +388,17 @@ class Parser
 	}
 
 	//And has higher precedence over or
+	/***
+	 *  And parser.
+	 *  
+	 *  equality() && equality()
+	 *  @return the and statement.
+	 */
 	private Expr and()
 	{
+		//Equality ties back here
 		Expr expr = equality();
-
+		
 		while(match(AND))
 		{
 			Token operator = previous();
