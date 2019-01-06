@@ -49,6 +49,7 @@ class MilkFunction implements MilkCallable
 		} catch(Return returnValue) {
 			if(isInitializer)
 				return closure.getAt(0,"this");
+			//This is how we return lmao.
 			return returnValue.value;
 		}
 
