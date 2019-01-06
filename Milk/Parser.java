@@ -217,6 +217,12 @@ class Parser
 		return new Stmt.Print(value);
 	}
 
+	/***
+	 * Return syntax:
+	 * returnStmt â†’ "return" expression? ";" ;
+	 *
+	 * Makes sense.
+	 */
 	private Stmt returnStatement()
 	{
 		Token keyword = previous();
@@ -287,17 +293,24 @@ class Parser
 		consume(SEMICOLON, "Expect ';' after expression.");
 		return new Stmt.Expression(expr);
 	}
-
+	
+	/***
+	 * funDecl  â†’ "fun" function ;
+	 * function â†’ IDENTIFIER "(" parameters? ")" block 
+	 */
 	private Stmt.Function function(String kind)
 	{
+		//We need a name here
 		Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
 	
 		consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
 		List<Token> parameters = new ArrayList<>();
+		//Just like before we must account for zero argument methods.
 		if(!check(RIGHT_PAREN))
 		{
 			do
 			{
+				//22 Arguments rule.
 				if(parameters.size() >= 22)
 				{
 					error(peek(), "Cannot have more than 8 parameters");
@@ -309,6 +322,7 @@ class Parser
 		consume(RIGHT_PAREN,"Expect ')' after parameters.");
 
 		consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+		///Wrap the rest up in a nice block. block() assumes the token has already been consumed.
 		List<Stmt> body = block();
 		return new Stmt.Function(name, parameters, body);
 	}
@@ -588,13 +602,20 @@ class Parser
 		return call();
 	}
 
+	/***
+	 * Takes the left parentheses and parses the expression using the previous expr as the callee.
+	 * Creates a list for arguments and just adds them over and over until no more arguments exist.
+	 * @return the complete Call expr
+	 */
 	private Expr finishCall(Expr callee)
 	{
 		List<Expr> arguments = new ArrayList<>();
+		//Handles zero argument case by first checking for the right parentheses.
 		if(!check(RIGHT_PAREN))
 		{
 			do
 			{
+				//put a cap on arguments.
 				if(arguments.size() >= 22)
 				{
 					error(peek(), "Cannot have more than 22 arguments.");
@@ -602,9 +623,9 @@ class Parser
 				arguments.add(expression());
 			} while(match(COMMA));
 		}
-		
+		//If we don't match a comma, then we should expect a right parentheses.
 		Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
-	
+		//Return the fully processed call statement.
 		return new Expr.Call(callee, paren, arguments);
 	}
 
@@ -615,13 +636,16 @@ class Parser
      call  â†’ primary ( "(" arguments? ")" )* ;	 
 	 First find the primary value.
 	 
+	 @return the call expression.
 	*/
     private Expr call()
     {
+    	//Should act as callee.
     	Expr expr = primary();
 
      	while(true)
      	{
+     		//If a ( is found it calls finishCall() to parse the call expression using the last parsed primary as the callee.
      		if(match(LEFT_PAREN))
      		{
      			expr = finishCall(expr);

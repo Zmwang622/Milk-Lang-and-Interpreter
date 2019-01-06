@@ -306,24 +306,30 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	 	// Unreachable but necessary
 	 	return null;
 	 }
-
+	 
+	 /***
+	  * First evaluates the callee. 
+	  *	Notes are within the method.
+	  */
 	@Override
 	public Object visitCallExpr(Expr.Call expr)
 	{
 		Object callee = evaluate(expr.callee);
 
+		//Evaluate each argument.
 		List<Object> arguments = new ArrayList<>();
 		for(Expr argument : expr.arguments)
 		{
 			arguments.add(evaluate(argument));
 		}
-
+		//Don't want people (me) to try calling methods with strings.
 		if(!(callee instanceof MilkCallable))
 		{
 			throw new RuntimeError(expr.paren,
 				"Can only call functions and classes.");
 		}
-
+		
+		//If there isn't enough or too many arguments.
 		MilkCallable function = (MilkCallable) callee;
 		if(arguments.size() != function.arity())
 		{
@@ -476,7 +482,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		return null;
 	}
 
-	
+	/***
+	 * Create a new function of the given stmt.
+	 * Define the function int othe environment.
+	 */
 	@Override
 	public Void visitFunctionStmt(Stmt.Function stmt)
 	{
@@ -520,6 +529,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		return null;
 	}
 
+	/***
+	 * Return becomes an exception because, it is the fastest way the interpeter can unwind itself off the call stack. 
+	 * If there is no value, methods return null. (or nil in Milk terms.)
+	 */
 	@Override
 	public Void visitReturnStmt(Stmt.Return stmt)
 	{

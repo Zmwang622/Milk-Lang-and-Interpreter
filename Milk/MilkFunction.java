@@ -1,7 +1,12 @@
 package JavaInterpreter.Milk;
 
 import java.util.List;
-
+/***
+ * Class that is similar to Stmt.Function.
+ * We need MilkFunction because:
+ * 1. Need to keep track of parameters so we can bind them to argument values.
+ * 2. Need a class that implements MilkCallable, so that way we can use MilkCallable's methods.
+ */
 class MilkFunction implements MilkCallable
 {
 	private final Stmt.Function declaration;
@@ -23,6 +28,13 @@ class MilkFunction implements MilkCallable
 		return new MilkFunction(declaration, environment, isInitializer);
 	}
 
+	/***
+	 * Very powerful code.
+	 * Create an environment for each function call.
+	 * Add all the parameters into the environment.
+	 * Finally execute the block. 
+	 * @return 
+	 */
 	@Override
 	public Object call(Interpreter interpreter, List<Object> arguments)
 	{
@@ -31,7 +43,6 @@ class MilkFunction implements MilkCallable
 		{
 			environment.define(declaration.params.get(i).lexeme, arguments.get(i)); 
 		}
-		
 	
 		try{
 			interpreter.executeBlock(declaration.body, environment);
@@ -45,13 +56,14 @@ class MilkFunction implements MilkCallable
 			return closure.getAt(0, "this");
 		return null;
 	}
-
+	//yeah yeah
 	@Override
 	public int arity()
 	{
 		return declaration.params.size();
 	}
 
+	//clean toString.
 	@Override
 	public String toString()
 	{
