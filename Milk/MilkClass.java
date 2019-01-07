@@ -2,7 +2,9 @@ package JavaInterpreter.Milk;
 
 import java.util.List;
 import java.util.Map;
-
+/***
+ * Runtime Representation of a Class.
+ */
 class MilkClass implements MilkCallable
 {
 	final String name;
@@ -16,7 +18,9 @@ class MilkClass implements MilkCallable
 		this.methods = methods;
 		this.superclass = superclass;
 	}	
-
+	/***
+	 * 
+	 */
 	MilkFunction findMethod(MilkInstance instance, String name)
 	{
 		if(methods.containsKey(name))
@@ -34,7 +38,10 @@ class MilkClass implements MilkCallable
 		return name;
 	
 	}
-
+	
+	/***
+	 * When a class is called, it instantiates a new class and returns it.
+	 */
 	@Override
 	public Object call(Interpreter interpreter, List<Object> arguments)
 	{
@@ -47,7 +54,10 @@ class MilkClass implements MilkCallable
 
 		return instance;
 	}
-
+	
+	/***
+	 * Classes don't have arguments, in the function sense.
+	 */
 	@Override
 	public int arity()
 	{

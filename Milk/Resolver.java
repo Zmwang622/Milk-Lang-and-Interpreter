@@ -106,6 +106,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 		if(scopes.isEmpty())
 			return;
 		Map<String, Boolean> scope = scopes.peek();
+		//Error handling for duplicates
 		if(scope.containsKey(name.lexeme))
 		{
 			Milk.error(name, 
@@ -152,7 +153,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 		endScope();
 		return null;
 	}
-
+	
+	/***
+	 * Class Visitor.
+	 */
 	@Override
 	public Void visitClassStmt(Stmt.Class stmt)
 	{	
@@ -177,9 +181,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 		beginScope();
 		scopes.peek().put("this", true);
 
+		//Iterate through each method and call resolveFunction on it.
 		for(Stmt.Function method : stmt.methods)
 		{
 			FunctionType declaration = FunctionType.METHOD;
+			//For constructors.
 			if(method.name.lexeme.equals("init"))
 			{
 				declaration = FunctionType.INITIALIZER;
@@ -338,7 +344,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 
 		return null;
 	}
-
+	
+	/***
+	 * Resolve the expression's object
+	 */
 	@Override
 	public Void visitGetExpr(Expr.Get expr)
 	{
@@ -368,7 +377,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 	}
 
 	/***
-	 * 
+	 * Logical Resolver
+	 * Literally the same as Binary.
 	 */
 	@Override
 	public Void visitLogicalExpr(Expr.Logical expr)
@@ -378,6 +388,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 		return null;
 	}
 
+	/***
+	 * Set Resolver
+	 * Resolve both the object and its new value.
+	 */
 	@Override
 	public Void visitSetExpr(Expr.Set expr)
 	{
@@ -416,7 +430,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
 		resolveLocal(expr, expr.keyword);
 		return null;
 	}
-
+	
+	/***
+	 * Unary Resolver
+	 * Resolve the operand
+	 */
 	@Override
 	public Void visitUnaryExpr(Expr.Unary expr)
 	{

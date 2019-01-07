@@ -34,6 +34,11 @@ class Environment{
 		values.put(name, value);
 	}
 
+	/***
+	 * Helper method for getAt()
+	 * Uses a fixed numbers of hops to determine the correct environment
+	 * @return the correct environment
+	 */
 	Environment ancestor(int distance)
 	{
 		Environment environment = this;
@@ -44,11 +49,19 @@ class Environment{
 
 		return environment;
 	}
+	
+	/***
+	 * Rendition of the get() method.
+	 *  We know the distance so we don't need to constantly check each variable.
+	 */
 	Object getAt(int distance, String name)
 	{
 		return ancestor(distance).values.get(name);
 	}
-
+	
+	/***
+	 * Assigns a variable at a certain distance.
+	 */
 	void assignAt(int distance, Token name, Object value)
 	{
 		ancestor(distance).values.put(name.lexeme, value);

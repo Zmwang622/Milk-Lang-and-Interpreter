@@ -96,7 +96,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		//If the left is true in an AND statement, we check the right value to see if it is true.
 		return evaluate(expr.right);
 	}
-
+	
+	/***
+	 * Set Interpreter
+	 * Evalue the object being set. Then check if its an instance.
+	 * Evaluate the new value and finally set the object to the value.
+	 * @return value.
+	 */
 	@Override
 	public Object visitSetExpr(Expr.Set expr)
 	{
@@ -183,13 +189,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		return lookUpVariable(expr.name, expr);
 	}
 
+	/***
+	 * Method tht looks up variable based on distance.
+	 */
 	private Object lookUpVariable(Token name, Expr expr)
 	{
 		Integer distance = locals.get(expr);
+		//Uses helper method to go into other environments and find other variables.
 		if(distance != null)
 		{
 			return environment.getAt(distance, name.lexeme);
 		}
+		//If no distance then the variable is global.
 		else
 		{
 			return globals.get(name);
@@ -341,6 +352,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		return function.call(this, arguments);
 	}
 	
+	/***
+	 * Get (Property Acceess) Interpretre
+	 * First evaluate the expression whose property is being accessed.
+	 * 
+	 */
 	@Override
 	public Object visitGetExpr(Expr.Get expr)
 	{
@@ -393,6 +409,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		stmt.accept(this);
 	}
 
+	/***
+	 * Depth refers to the number of environments between the current and enclosing one.
+	 */
 	void resolve(Expr expr, int depth)
 	{
 		locals.put(expr, depth);
@@ -430,7 +449,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		executeBlock(stmt.statements, new Environment(environment));
 		return null;
 	}
-
+	/***
+	 * Class Interpreter
+	 */
 	@Override
 	public Void visitClassStmt(Stmt.Class stmt)
 	{
@@ -444,6 +465,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 					"Superclass must be a class.");
 			}
 		}
+		//Declare class name into the environment
 		environment.define(stmt.name.lexeme, null);
 
 		if(stmt.superclass != null)
@@ -453,6 +475,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 		}
 		
 		Map<String, MilkFunction> methods = new HashMap<>();
+		//Turn the AST Node into the runtime representation.
 		for(Stmt.Function method : stmt.methods)
 		{
 			MilkFunction function = new MilkFunction(method,environment,
@@ -460,6 +483,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			methods.put(method.name.lexeme, function);
 		}
 
+		//Turn the class node into MilkClass, the runtime representation of a class.
 		MilkClass klass = new MilkClass(stmt.name.lexeme, 
 			(MilkClass) superclass, methods);
 		
@@ -468,6 +492,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 			environment = environment.enclosing;
 		}
 
+		//Assign the class into the environment.
 		environment.assign(stmt.name, klass);
 		return null;
 	}
@@ -575,6 +600,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 	 * Assignment doesn't create a new variable, only alters the definition.
 	 * Evaluate the expression's value type.
 	 * 
+	 * We look for the distance. If it exists, we find the variable at the distance. Otherwise, we assume its global.
 	 * 
 	 * Assign the variable into the environment.
 	 * 

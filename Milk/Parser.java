@@ -456,6 +456,11 @@ class Parser
 			return null;
 		}
 	}
+	/***
+	 * Class parser
+	 * After we consume class keyword,we look to consume: 
+	 * Name, curly brace, and then method declarations until we reach the end of the class.
+	 */
 	private Stmt classDeclaration()
 	{
 		Token name = consume(IDENTIFIER, "Expect class name.");
