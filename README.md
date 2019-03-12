@@ -8,6 +8,8 @@ Hear about Milk from some of my good friends!
 "I have a dream to provide every Chinese, especially children, sufficient **Milk** each day."  - [Wen Jiabao](https://www.walmart.com/ip/Wen-Jiabao-I-have-a-dream-to-provide-every-Chinese-especially-children-sufficient-milk-each-day-Famous-Quotes-Laminated-POSTER-PRINT-24X20/352561585)
 
 "I love **Milk** so much!" - [Natalie Portman](https://www.brainyquote.com/quotes/natalie_portman_414141)
+
+"Ming is the worst teacher ever" - Hasala Rannulu (so much for being best friends)
 ## What is it
 I always wanted to make my own programming language. Senior year of HS, I first started to learn how to program and for our final project I jokingly said that my group and I should make our own language. Though we chose to make a game that didn't actually work, the idea stuck in my head. 
 
