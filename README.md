@@ -30,16 +30,201 @@ Pretty basic stuff.
 ### Expressions
 A lot of stuff going on here. 
 
+*Arithmetic*
+Just like normal.
+```
+add + this;
+subtract - me; 
+multiply * me;
+divide / this;
+-negateThis
+```
+*Comparisons*
+```
+less < than
+lessThan =< orEqual
+greater > than
+greaterThan >= orEqual
+
+1==2;       //false
+"cat"!="dog";  //true
+//You can compare different types!
+314 == "pi"; //false
+123 == "123"; //false
+```
+*Logic*
+```
+!true;  //false
+!false; //true
+true and false; //false
+true and true;  //true
+false or false; //false
+true or true;   //true
+
+// Use () to change precedence
+var avg =  (min + max) / 2;
+```
+
+### Statements
+Statements produce an *effect*. The print statement is an example. You can pack a series of statements
+
+```
+{
+  print "One statement.";
+  print "Two statements.";
+}
+```
+
+### Variables
+Like other languages, use = to initialize variables. Omitting the initializer defaults to nil. Because Milk is *dynamically-typed* there is only one key word for defining variables, `var`.
+
+```
+var hello = "World";
+var stillAVar;
+```
+
+Access and assign variables using the name
+
+```
+var breakfast = "bagels";
+print breakfast; // "bagels".
+breakfast = "beignets";
+print breakfast; // "beignets".
+```
+
+### Control Flow
+There are if, for, and while statements.
+
+```
+// If/Else statements
+if(condition){
+  print "correct";
+}
+else{
+  print "wrong";
+}
+
+// While Loop
+var a = 0;
+while(a<10)
+{
+ print "Ming is so cool";
+ a = a + 1;
+}
+
+// For Loop
+for(var a = 1; a < 10; a = a +5)
+{
+    print a;
+}
+```
+
+### Functions
+Really let the power get to my head at this point. 
+
+Functions can be run with or without arguments and look just like Java's functions.
+```
+doThing()
+build(brick, clay)
+```
+
+Use the keyword `ming` to declare functions...Clever right? LOL.
+```
+// No I'm not joking.
+ming printSum(a,b)
+{
+  print a + b;
+}
+```
+
+Functions are *first class* in Milk, meaning they work just real values. Imagine function pointers in C.
+```
+ming addPair(a, b) {
+  return a + b;
+}
+
+ming identity(a) {
+  return a;
+}
+
+print identity(addPair)(1, 2); // Prints "3".
+```
+
+Functions can be declared within functions. It's a pretty cool feature. Shout out to Bob Nystrom (the author of the book).
+```
+ming returnFunction() {
+  var outside = "outside";
+
+  ming inner() {
+    print outside;
+  }
+
+  return inner;
+}
+
+var woah = returnFunction();
+fn();
+```
+
+### Classes
+Milk is OOP. Here's what one would look like.
+```
+class Breakfast {
+  cook() {
+    print "Eggs a-fryin'!";
+  }
+
+  serve(who) {
+    print "Enjoy your breakfast, " + who + ".";
+  }
+}
+
+// Store it in variables.
+var someVariable = Breakfast;
+
+// Pass it to functions.
+someFunction(Breakfast);
+
+// Print it 
+print someVariable; // "Breakfast instance"
+```
+
+*Instances and Initialization*
+Use init() to create a constructor-sorta-thing.
+```
+class Breakfast {
+  init(meat, bread) {
+    this.meat = meat;
+    this.bread = bread;
+  }
+
+  // ...
+}
+
+var baconAndToast = Breakfast("bacon", "toast");
+baconAndToast.serve("Dear Reader");
+```
+*Inheritance*
+Use `className<superClass` to get inheritance working.
+```
+class Brunch < Breakfast {
+  drink() {
+    print "How about a Blood Mary?";
+  }
+}
+```
+In the above example Brunch is the subclass and thus is able to use any of Breakfast's methods. But when Brunch calls drink() the output is different than what Breakfast would output.
+
 
 ## How to Use 
-I will have comprehensive instructions soon (turns out school is a lot of work) but you can still try it out now (it has error handling!).
-
 0. Download the repos from Github.
-0. On command prompt/terminal/whatever, cd into the Milk folder.
+0. On command prompt/terminal/whatever, cd into where Milk is located.
 1. javac Milk.java
 2. java Milk [arg]
 
 If there's no argument you enter a Milk environment, just like Python's virtual environment!
+
+I hope to make an online IDE version of Milk in the future, would be pretty cool.
 
 ```
 //This is how Milk works!
