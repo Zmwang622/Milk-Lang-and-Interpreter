@@ -1,4 +1,4 @@
-# Milk
+<img src="https://github.com/Zmwang622/Milk-Lang-and-Interpreter/blob/master/Milk.PNG" height=75% width = 75%>
 **Testimonies:**
 Hear about Milk from some of my good friends!
 
