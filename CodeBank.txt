@@ -1,3 +1,4 @@
+// Was gonna make a huge repos of Milk code that works, but got lazy. oh whale. Maybe I'll get to it someday
 class Cake {
   taste() {
     var adjective = "delicious";
