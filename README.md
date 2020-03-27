@@ -1,24 +1,11 @@
 <img src="https://github.com/Zmwang622/Milk-Lang-and-Interpreter/blob/master/Milk.PNG" height=75% width = 75%>
 
-**Testimonies:**
-
-Hear about Milk from some of my good friends!
-
-"Get off your horse and drink **Milk**." - [John Wayne](https://www.youtube.com/watch?v=IG455EGnCyk)
-
-"Beverage wise, I stick to **Milk**." - [Derrick Rose](https://www.brainyquote.com/quotes/derrick_rose_541442?src=t_milk) (*Take that Java*) 
-
-"I have a dream to provide every Chinese, especially children, sufficient **Milk** each day."  - [Wen Jiabao](https://www.walmart.com/ip/Wen-Jiabao-I-have-a-dream-to-provide-every-Chinese-especially-children-sufficient-milk-each-day-Famous-Quotes-Laminated-POSTER-PRINT-24X20/352561585)
-
-"I love **Milk** so much!" - [Natalie Portman](https://www.brainyquote.com/quotes/natalie_portman_414141)
-
-"Ming is the worst teacher ever" - Hasala Rannulu (so much for being best friends)
 ## What is it
 I always wanted to make my own programming language. Senior year of HS, I first started to learn how to program and for our final project I jokingly said that my group and I should make our own language. Though we chose to make a game that didn't actually work, the idea stuck in my head. 
 
 Fast forward to my first year of college. After a successful first semester, I was set on working on my first *real* personal project (because that's supposedly what gets jobs.) With the help of [this handy textbook](http://www.craftinginterpreters.com/) and the fact that I spent 30 hours on the road during my winter break, I was able to bust out this nifty Java interpreter in around a month. Definitely piggybacked off that book **alot** but still learned a lot. The next semester a lot of what I read in the book came up in my classes and I felt pretty cool. 
 
-Also: I tried to add javadoc via Eclipse (because it's easier) and messed up the Java path thingies on my computer. Hopefully it still works via GitHub. 
+Also: I tried to add javadoc via Eclipse and messed up the Java path on my computer. Hopefully it still works via GitHub. 
 
 ## How it Works
 Milk is a dynamically-typed, object-oriented, imperative, scripting language. It's not that robust but I love it. Also it's easy to understand for programming beginners and I taught two of my friends programming via this. 
